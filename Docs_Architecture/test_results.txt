@@ -1,0 +1,348 @@
+
+=== test_business_rules_marketing_event.py ===
+Before injection:
+Event before reg: 0
+
+=== test_business_rules_order_future.py ===
+Before injection:
+Future order dates: 0
+
+After injection:
+Future order dates: 5
+Future dates: [Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00')]
+
+=== test_business_rules_order.py ===
+Before injection:
+Orders before customer registration: 0
+
+=== test_business_rules_payment.py ===
+Before injection:
+Payments before order date: 0
+
+After injection:
+Payments before order date: 5
+
+Invalid records:
+     payment_id  order_id payment_date
+88         5089        89   2025-03-29
+433        5434       434   2026-03-09
+438        5439       439   2026-03-14
+653        5654       654   2026-10-15
+771        5772       772   2027-02-10
+
+=== test_business_rules.py ===
+Before injection:
+Future registration dates: 0
+
+After injection:
+Future registration dates: 5
+Future dates: [Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00'), Timestamp('2027-08-23 00:00:00')]
+
+=== test_business_rules_review.py ===
+Before injection:
+Reviews before customer registration: 0
+
+After injection:
+Reviews before customer registration: 5
+
+Invalid records:
+     review_id  customer_id review_date
+88        2089         1089  2025-03-29
+433       2434         1434  2026-03-09
+438       2439         1439  2026-03-14
+653       2654         1654  2026-10-15
+771       2772         1772  2027-02-10
+
+=== test_business_rules_shipping_delivery.py ===
+Before injection:
+Delivery before shipping date: 0
+
+After injection:
+Delivery before shipping date: 5
+
+Invalid records:
+     shipment_id  order_id shipping_date delivery_date
+88          5089        89    2025-03-30    2025-03-29
+433         5434       434    2026-03-10    2026-03-09
+438         5439       439    2026-03-15    2026-03-14
+653         5654       654    2026-10-16    2026-10-15
+771         5772       772    2027-02-11    2027-02-10
+
+=== test_business_rules_shipping_estimated.py ===
+Before injection:
+Estimated delivery before shipping date: 0
+
+After injection:
+Estimated delivery before shipping date: 5
+
+Invalid records:
+     shipment_id  order_id shipping_date estimated_delivery_date
+88          5089        89    2025-03-30              2025-03-29
+433         5434       434    2026-03-10              2026-03-09
+438         5439       439    2026-03-15              2026-03-14
+653         5654       654    2026-10-16              2026-10-15
+771         5772       772    2027-02-11              2027-02-10
+
+=== test_business_rules_shipping.py ===
+Before injection:
+Shipping before order date: 0
+
+After injection:
+Shipping before order date: 5
+
+Invalid records:
+     shipment_id  order_id shipping_date
+88          5089        89    2025-03-29
+433         5434       434    2026-03-09
+438         5439       439    2026-03-14
+653         5654       654    2026-10-15
+771         5772       772    2027-02-10
+
+=== test_duplicates_marketing_event.py ===
+Before injection: Rows 100
+After injection: Rows 101 Duplicates: 1
+
+=== test_duplicates_order.py ===
+Before injection: Rows 100 Duplicates: 0
+After injection: Rows 101 Duplicates: 1
+
+=== test_duplicates_payment.py ===
+Before injection: Rows 100 Duplicates: 0
+After injection: Rows 102 Duplicates payment_id: 2 order_id: 2
+
+=== test_duplicates_product.py ===
+Before injection: Rows 100 Duplicates: 0
+After injection: Rows 101 Duplicates: 1
+
+=== test_duplicates.py ===
+Before injection:
+Rows: 100
+Duplicate customer_id: 0
+
+After injection:
+Rows: 101
+Duplicate customer_id: 1
+
+=== test_duplicates_review.py ===
+Before injection: Rows 100
+After injection: Rows 101
+
+=== test_duplicates_shipping.py ===
+Before injection: Rows 100 Duplicates: 0
+After injection: Rows 102 Duplicates shipment_id: 2 order_id: 2
+
+=== test_inconsistent_formats_customer.py ===
+Before injection lower country: 0
+After injection lower country: 0
+
+=== test_inconsistent_formats_marketing_event.py ===
+Before injection lower device: 0
+After injection lower device: 3
+
+=== test_inconsistent_formats_order.py ===
+Before injection lower status: 0
+After injection lower status: 3
+
+=== test_inconsistent_formats.py ===
+Before injection:
+Electronics: 100
+electronics: 0
+Samsung: 100
+SAMSUNG: 0
+
+After injection:
+Electronics: 95
+electronics: 5
+Samsung: 97
+SAMSUNG: 3
+
+=== test_invalid_data_types_customer.py ===
+Before injection invalid dob type: 0
+After injection invalid dob type: 0
+
+=== test_invalid_data_types_marketing_event.py ===
+Before injection invalid date type: 0
+After injection invalid date type: 0
+
+=== test_invalid_data_types_order_item.py ===
+Before injection invalid quantity type: 0
+After injection invalid quantity type: 0
+
+=== test_invalid_data_types_order.py ===
+Before injection invalid date type: 0
+After injection invalid date type: 0
+
+=== test_invalid_data_types_payment.py ===
+Before injection invalid amount type: 0
+After injection invalid amount type: 0
+
+=== test_invalid_data_types.py ===
+Before injection:
+Invalid price type: 0
+
+After injection:
+Invalid price type: 5
+Invalid price value: ['fifty dollars', 'fifty dollars', 'fifty dollars', 'fifty dollars', 'fifty dollars']
+
+=== test_invalid_data_types_review.py ===
+Before injection invalid rating type: 0
+After injection invalid rating type: 0
+
+=== test_invalid_data_types_shipping.py ===
+Before injection invalid date type: 0
+After injection invalid date type: 0
+
+=== test_invalid_foreign_keys_marketing_event.py ===
+Before injection:
+Invalid customer_id: 0
+
+After injection:
+Invalid customer_id: 1
+Invalid customer_id values: [1101]
+
+=== test_invalid_foreign_keys_order_item.py ===
+Before injection:
+Invalid order_id: 0
+Invalid product_id: 0
+
+After injection:
+Invalid order_id: 1
+Invalid product_id: 1
+Invalid order_id values: [101]
+Invalid product_id values: [1101]
+
+=== test_invalid_foreign_keys_payment_shipping.py ===
+Before injection:
+Invalid Payment.order_id: 0
+Invalid Shipping.order_id: 0
+
+After injection:
+Invalid Payment.order_id: 1
+Invalid Shipping.order_id: 1
+Invalid Payment.order_id values: [101]
+Invalid Shipping.order_id values: [101]
+
+=== test_invalid_foreign_keys.py ===
+Before injection:
+Invalid customer_id: 0
+
+After injection:
+Invalid customer_id: 1
+Invalid FK values: [1101]
+
+=== test_invalid_foreign_keys_review.py ===
+Before injection:
+Invalid customer_id: 0
+Invalid product_id: 0
+
+After injection:
+Invalid customer_id: 1
+Invalid product_id: 1
+Invalid customer_id values: [1101]
+Invalid product_id values: [2101]
+
+=== test_invalid_values_customer.py ===
+Before injection invalid gender: 0
+After injection invalid gender: 1
+
+=== test_invalid_values_marketing_event.py ===
+Before injection invalid event_type: 0
+After injection invalid event_type: 1
+
+=== test_invalid_values_order_item.py ===
+Before injection:
+Invalid quantity: 0
+Invalid unit_price: 0
+
+After injection:
+Invalid quantity: 1
+Invalid unit_price: 1
+
+=== test_invalid_values_order.py ===
+Before injection invalid order_status: 0
+After injection invalid order_status: 1
+
+=== test_invalid_values_payment.py ===
+Before injection invalid amount: 0
+After injection invalid amount: 1
+
+=== test_invalid_values.py ===
+Before injection:
+Invalid price: 0
+Invalid cost: 0
+Invalid stock_quantity: 0
+
+After injection:
+Invalid price: 1
+Invalid cost: 1
+Invalid stock_quantity: 1
+
+=== test_invalid_values_review.py ===
+Before injection:
+Invalid rating: 0
+
+After injection:
+Invalid rating: 10
+
+Invalid records:
+     review_id  rating
+85        2086       0
+88        2089       0
+94        2095       0
+201       2202       0
+430       2431       0
+436       2437       0
+649       2650       0
+695       2696       0
+767       2768       0
+855       2856       0
+
+=== test_invalid_values_shipping.py ===
+Before injection invalid shipping_status: 0
+After injection invalid shipping_status: 1
+
+=== test_missing_values_marketing_event.py ===
+Before injection:
+ event_id       0
+campaign_id    0
+dtype: int64
+
+After injection:
+ event_id       0
+campaign_id    3
+dtype: int64
+
+=== test_missing_values.py ===
+Before injection:
+customer_id      0
+phone            0
+gender           0
+date_of_birth    0
+dtype: int64
+
+After injection:
+customer_id      0
+phone            5
+gender           3
+date_of_birth    3
+dtype: int64
+
+=== test_missing_values_shipping.py ===
+Before injection:
+ shipment_id      0
+delivery_date    0
+dtype: int64
+
+After injection:
+ shipment_id       0
+delivery_date    10
+dtype: int64
+
+=== test_order_item_duplicates.py ===
+Before injection:
+Rows: 100
+Duplicate (order_id, product_id): 0
+
+After injection:
+Rows: 101
+Duplicate (order_id, product_id): 1
