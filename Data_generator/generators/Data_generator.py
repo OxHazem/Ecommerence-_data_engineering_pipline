@@ -1,6 +1,6 @@
 from faker import Faker
 import random
-from datetime import timedelta
+from datetime import date, timedelta
 class data_generator:
     def __init__(self,n=0 ,seed=42):
       self.seed = seed 
@@ -24,61 +24,70 @@ class data_generator:
 
         
 
-    def generator_customer(self,n=None):
-        print("Generating Customer data : ")
-        if n is None : 
-          n=self.n
+
+
+    def generator_customer(self, n=None):
+        print("Generating Customer data:")
+
+        if n is None:
+            n = self.n
+
         faker = Faker()
 
         random.seed(self.seed)
-
         faker.seed_instance(self.seed)
+
         countries = {
             "Egypt": ["Cairo", "Alexandria", "Giza", "Luxor"],
             "Saudi Arabia": ["Riyadh", "Jeddah", "Mecca"],
             "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah"],
         }
 
+        MIN_REGISTRATION_DATE = date(2015, 1, 1)
+
         customers = []
-        for customer_id in range(1,n+1):
+
+        for customer_id in range(1, n + 1):
 
             country = random.choice(list(countries.keys()))
-
-            city =  random.choice (countries[country])
-
+            city = random.choice(countries[country])
 
             date_of_birth = faker.date_of_birth(
                 minimum_age=18,
                 maximum_age=70
             )
 
+            earliest_registration_date = max(
+                date_of_birth + timedelta(days=1),
+                MIN_REGISTRATION_DATE
+            )
+
             registration_date = faker.date_between(
-            start_date=date_of_birth + timedelta(days=1),
-            end_date="today"
-                            )
-
-
-
-
-
+                start_date=earliest_registration_date,
+                end_date="today"
+            )
 
             customer = {
-               "customer_id":customer_id , 
-               "first_name": faker.first_name(),
-               "last_name" : faker.last_name(),
-               "email":faker.email(), 
-               "phone": self.generate_phone(country),
-               "gender" : random.choice(["Male", "Female" , "Other" ,"Unknown"]),
-               "date_of_birth": date_of_birth , 
-               "country" : country , 
-               "city" : city , 
-               "registration_date" : registration_date , 
-               "customer_status" : random.choice(["Active" , "Inactive", "Suspended"]) 
+                "customer_id": customer_id,
+                "first_name": faker.first_name(),
+                "last_name": faker.last_name(),
+                "email": faker.email(),
+                "phone": self.generate_phone(country),
+                "gender": random.choice(
+                    ["Male", "Female", "Other", "Unknown"]
+                ),
+                "date_of_birth": date_of_birth,
+                "country": country,
+                "city": city,
+                "registration_date": registration_date,
+                "customer_status": random.choice(
+                    ["Active", "Inactive", "Suspended"]
+                )
             }
+
             customers.append(customer)
 
         return customers
-    
     def generator_product(self, n=None):
 
         print("Generating Product data : ")
