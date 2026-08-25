@@ -20,21 +20,35 @@
 
 
 -- ============================================================
+-- CLEANUP EXISTING TABLES
+-- ============================================================
+DROP TABLE IF EXISTS bronze.customer CASCADE;
+DROP TABLE IF EXISTS bronze.product CASCADE;
+DROP TABLE IF EXISTS bronze.orders CASCADE;
+DROP TABLE IF EXISTS bronze.order_item CASCADE;
+DROP TABLE IF EXISTS bronze.payment CASCADE;
+DROP TABLE IF EXISTS bronze.shipping CASCADE;
+DROP TABLE IF EXISTS bronze.review CASCADE;
+DROP TABLE IF EXISTS bronze.marketing_event CASCADE;
+DROP TABLE IF EXISTS bronze.exchange_rate CASCADE;
+
+
+-- ============================================================
 -- CUSTOMER
 -- ============================================================
 
 CREATE TABLE bronze.customer (
-    customer_id         INTEGER,
-    first_name          VARCHAR(50),
-    last_name           VARCHAR(50),
-    email               VARCHAR(255),
-    phone               VARCHAR(20),
-    gender              VARCHAR(20),
-    date_of_birth       DATE,
-    country             VARCHAR(100),
-    city                VARCHAR(100),
-    registration_date   DATE,
-    customer_status     VARCHAR(20),
+    customer_id         TEXT,
+    first_name          TEXT,
+    last_name           TEXT,
+    email               TEXT,
+    phone               TEXT,
+    gender              TEXT,
+    date_of_birth       TEXT,
+    country             TEXT,
+    city                TEXT,
+    registration_date   TEXT,
+    customer_status     TEXT,
 
     source_file         TEXT,
     ingestion_timestamp TIMESTAMPTZ,
@@ -48,17 +62,17 @@ CREATE TABLE bronze.customer (
 -- ============================================================
 
 CREATE TABLE bronze.product (
-    product_id       INTEGER,
-    product_name     VARCHAR(255),
-    category         VARCHAR(100),
-    subcategory      VARCHAR(100),
-    brand            VARCHAR(100),
-    supplier         VARCHAR(100),
-    cost             DECIMAL(10,2),
-    price            DECIMAL(10,2),
-    stock_quantity   INTEGER,
-    product_status   VARCHAR(20),
-    launch_date      DATE,
+    product_id       TEXT,
+    product_name     TEXT,
+    category         TEXT,
+    subcategory      TEXT,
+    brand            TEXT,
+    supplier         TEXT,
+    cost             TEXT,
+    price            TEXT,
+    stock_quantity   TEXT,
+    product_status   TEXT,
+    launch_date      TEXT,
 
     source_file         TEXT,
     ingestion_timestamp TIMESTAMPTZ,
@@ -75,13 +89,13 @@ CREATE TABLE bronze.product (
 -- is named "orders".
 
 CREATE TABLE bronze.orders (
-    order_id          INTEGER,
-    customer_id       INTEGER,
-    order_date        DATE,
-    order_status      VARCHAR(20),
-    currency           CHAR(3),
-    shipping_country   VARCHAR(100),
-    shipping_city      VARCHAR(100),
+    order_id          TEXT,
+    customer_id       TEXT,
+    order_date        TEXT,
+    order_status      TEXT,
+    currency           TEXT,
+    shipping_country   TEXT,
+    shipping_city      TEXT,
 
     source_file         TEXT,
     ingestion_timestamp TIMESTAMPTZ,
@@ -95,12 +109,12 @@ CREATE TABLE bronze.orders (
 -- ============================================================
 
 CREATE TABLE bronze.order_item (
-    order_id       INTEGER,
-    product_id     INTEGER,
-    quantity       INTEGER,
-    unit_price     DECIMAL(10,2),
-    discount       DECIMAL(5,2),
-    cost_at_sale   DECIMAL(10,2),
+    order_id       TEXT,
+    product_id     TEXT,
+    quantity       TEXT,
+    unit_price     TEXT,
+    discount       TEXT,
+    cost_at_sale   TEXT,
 
     source_file         TEXT,
     ingestion_timestamp TIMESTAMPTZ,
@@ -114,14 +128,14 @@ CREATE TABLE bronze.order_item (
 -- ============================================================
 
 CREATE TABLE bronze.payment (
-    payment_id             INTEGER,
-    order_id               INTEGER,
-    payment_date           DATE,
-    payment_method         VARCHAR(30),
-    amount                 DECIMAL(12,2),
-    currency               CHAR(3),
-    payment_status         VARCHAR(20),
-    transaction_reference  VARCHAR(100),
+    payment_id             TEXT,
+    order_id               TEXT,
+    payment_date           TEXT,
+    payment_method         TEXT,
+    amount                 TEXT,
+    currency               TEXT,
+    payment_status         TEXT,
+    transaction_reference  TEXT,
 
     source_file            TEXT NOT NULL,
     ingestion_timestamp    TIMESTAMPTZ NOT NULL,
@@ -135,16 +149,16 @@ CREATE TABLE bronze.payment (
 -- ============================================================
 
 CREATE TABLE bronze.shipping (
-    shipment_id              INTEGER,
-    order_id                 INTEGER,
-    shipping_date            DATE,
-    estimated_delivery_date  DATE,
-    delivery_date            DATE,
-    shipping_country         VARCHAR(100),
-    shipping_city            VARCHAR(100),
-    shipping_method          VARCHAR(30),
-    shipping_status          VARCHAR(20),
-    shipping_cost            DECIMAL(10,2),
+    shipment_id              TEXT,
+    order_id                 TEXT,
+    shipping_date            TEXT,
+    estimated_delivery_date  TEXT,
+    delivery_date            TEXT,
+    shipping_country         TEXT,
+    shipping_city            TEXT,
+    shipping_method          TEXT,
+    shipping_status          TEXT,
+    shipping_cost            TEXT,
 
     source_file              TEXT NOT NULL,
     ingestion_timestamp      TIMESTAMPTZ NOT NULL,
@@ -157,14 +171,14 @@ CREATE TABLE bronze.shipping (
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS bronze.review (
-    review_id          INTEGER,
-    customer_id        INTEGER,
-    product_id         INTEGER,
-    rating             INTEGER,
+    review_id          TEXT,
+    customer_id        TEXT,
+    product_id         TEXT,
+    rating             TEXT,
     review_text        TEXT,
-    review_date        DATE,
-    verified_purchase  BOOLEAN,
-    review_status      VARCHAR(20),
+    review_date        TEXT,
+    verified_purchase  TEXT,
+    review_status      TEXT,
 
     source_file         TEXT NOT NULL,
     ingestion_timestamp TIMESTAMPTZ NOT NULL,
@@ -178,15 +192,15 @@ CREATE TABLE IF NOT EXISTS bronze.review (
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS bronze.marketing_event (
-    event_id           INTEGER,
-    customer_id        INTEGER,
-    campaign_id        INTEGER,
-    campaign_name      VARCHAR(150),
-    event_type         VARCHAR(30),
-    channel            VARCHAR(30),
-    event_timestamp    TIMESTAMP,
-    device_type        VARCHAR(20),
-    country            VARCHAR(100),
+    event_id           TEXT,
+    customer_id        TEXT,
+    campaign_id        TEXT,
+    campaign_name      TEXT,
+    event_type         TEXT,
+    channel            TEXT,
+    event_timestamp    TEXT,
+    device_type        TEXT,
+    country            TEXT,
 
     source_file         TEXT NOT NULL,
     ingestion_timestamp TIMESTAMPTZ NOT NULL,
@@ -200,11 +214,11 @@ CREATE TABLE IF NOT EXISTS bronze.marketing_event (
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS bronze.exchange_rate (
-    requested_date       DATE,
-    date                 DATE,
-    base                 CHAR(3),
-    quote                CHAR(3),
-    rate                 DECIMAL(18,8),
+    requested_date       TEXT,
+    date                 TEXT,
+    base                 TEXT,
+    quote                TEXT,
+    rate                 TEXT,
 
     -- Ingestion metadata
     source_file          TEXT NOT NULL,
