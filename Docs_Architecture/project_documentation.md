@@ -8,329 +8,216 @@
 
 ### 1.2 Project Goal
 
-The goal of this project is to build a complete, production-style Data Engineering platform that takes messy data from multiple sources, ingests and stores it, transforms it into analytical datasets, implements multiple data architecture methodologies, orchestrates the pipelines, validates data quality, and finally exposes the data to a Business Intelligence tool such as Power BI.
+The goal of this project is to build a complete end-to-end Data Engineering platform for an international e-commerce business.
 
-The project will not focus only on producing a final dashboard.
+The platform will begin with **messy data coming from multiple heterogeneous sources**, ingest and preserve the raw data, progressively transform the data through the **Medallion Architecture**, and then make the resulting data available through analytical warehouse models based on **Kimball and Inmon methodologies**.
 
-The main objective is to demonstrate the complete journey:
+The final analytical data will be exposed through a Business Intelligence tool such as **Microsoft Power BI**.
 
-```text
-Data Sources
-     ↓
-Data Ingestion
-     ↓
-Raw Data Storage
-     ↓
-Data Lake
-     ↓
-Data Transformation
-     ↓
-Data Warehouse
-     ↓
-Data Marts
-     ↓
-Data Quality
-     ↓
-Orchestration
-     ↓
-Business Intelligence
-```
-
-A major feature of the project is that the same business domain will be implemented using different architectural methodologies:
+The project is designed to demonstrate the complete lifecycle of data:
 
 ```text
-                 E-Commerce Sources
-                         │
-                         ▼
-                   Ingestion Layer
-                         │
-                         ▼
-                    Raw Storage
-                         │
-          ┌──────────────┼──────────────┐
-          │              │              │
-          ▼              ▼              ▼
-      Medallion       Kimball         Inmon
-      Architecture    Warehouse       EDW
-          │              │              │
-          ▼              ▼              ▼
-        Gold             DW          Data Marts
-          │              │              │
-          └──────────────┼──────────────┘
-                         ▼
-                      Power BI
+                         DATA SOURCES
+                              │
+                              ▼
+                       DATA INGESTION
+                              │
+                              ▼
+                       RAW DATA STORAGE
+                         (MinIO)
+                              │
+                              ▼
+                         BRONZE LAYER
+                              │
+                              ▼
+                         SILVER LAYER
+                              │
+                              ▼
+                           GOLD LAYER
+                              │
+                    ┌─────────┴─────────┐
+                    │                   │
+                    ▼                   ▼
+                 KIMBALL              INMON
+              Data Warehouse        Enterprise DW
+                    │                   │
+                    ▼                   ▼
+              Star Schema           Data Marts
+                    │                   │
+                    └─────────┬─────────┘
+                              ▼
+                          POWER BI
 ```
 
-This allows the project to demonstrate not only implementation skills but also architectural understanding.
+The project will also include:
+
+* Data quality validation
+* Incremental processing
+* Pipeline orchestration
+* Logging and monitoring
+* Data lineage
+* Automated testing
+* Containerization
+* Performance considerations
 
 ---
 
-# 2. Business Scenario
+# 2. Project Objectives
 
-We will imagine that we are working for an international e-commerce company.
+The project has the following objectives:
 
-The company sells products to customers in multiple countries.
+### Data Engineering Objectives
 
-The company has several systems generating data:
+* Build a complete ETL/ELT pipeline.
+* Ingest data from multiple source types.
+* Handle intentionally dirty source data.
+* Preserve raw source data.
+* Transform data through multiple stages.
+* Support incremental data processing.
+* Validate data quality.
+* Automate the pipeline.
 
-* E-commerce orders
+### Data Architecture Objectives
+
+* Implement a Data Lake using MinIO.
+* Implement the Medallion Architecture.
+* Implement a Kimball dimensional warehouse.
+* Implement an Inmon normalized Enterprise Data Warehouse.
+* Create analytical data marts.
+* Compare the different architectural approaches.
+
+### Business Intelligence Objectives
+
+* Build analytical datasets.
+* Connect the warehouse to Power BI.
+* Create business dashboards.
+* Provide useful KPIs and visualizations.
+
+---
+
+# 3. Business Scenario
+
+The project simulates an international e-commerce company that sells products to customers in multiple countries.
+
+The company has multiple operational systems generating data independently.
+
+These systems contain information about:
+
 * Customers
 * Products
+* Orders
+* Order items
 * Payments
-* Reviews
 * Shipping
-* Marketing
-* External APIs
+* Reviews
+* Marketing activities
+* Currency exchange rates
 
-Management wants to answer questions such as:
+The source systems do not necessarily follow the same structure or data-quality standards.
 
-### Sales
+The Data Engineering platform will integrate these sources into a centralized analytical environment.
 
-* How much revenue did we generate?
-* Which products generate the most revenue?
-* Which countries generate the most sales?
+---
+
+# 4. Business Questions
+
+The analytical platform should allow the business to answer questions such as:
+
+## 4.1 Sales
+
+* What is the total revenue?
+* What is the total number of orders?
 * How does revenue change over time?
+* Which countries generate the highest revenue?
+* Which products generate the highest revenue?
 * What is the average order value?
+* What is the total profit?
 
-### Customers
+## 4.2 Customers
 
-* How many customers do we have?
-* How many are new?
-* How many are returning?
+* How many customers are registered?
+* How many new customers are acquired?
+* How many customers are returning customers?
 * Which customers generate the most revenue?
-* How does customer behavior change?
+* How much revenue is generated per customer?
 
-### Products
+## 4.3 Products
 
 * Which products sell the most?
+* Which products generate the highest revenue?
 * Which products generate the highest profit?
 * Which categories perform best?
 
-### Operations
+## 4.4 Shipping
 
 * How many orders are delayed?
-* Which countries have the highest shipping problems?
-* How long does shipping take?
+* What is the average delivery time?
+* Which countries have the highest shipping delays?
+* Which shipping methods perform best?
 
-### Data Engineering
+## 4.5 Marketing
 
-* How many records were processed?
-* How many records failed validation?
-* How many duplicates were found?
-* How long did the pipeline take?
-* When was the last successful pipeline execution?
+* Which campaigns generate the most activity?
+* Which channels attract the most customers?
+* How do marketing activities relate to sales?
 
----
+## 4.6 Data Engineering
 
-# 3. Project Architecture
+The platform should also provide engineering metrics:
 
-The final architecture will eventually look approximately like this:
-
-```text
-                         ┌──────────────────────┐
-                         │      DATA SOURCES    │
-                         └──────────┬───────────┘
-                                    │
-                 ┌──────────────────┼──────────────────┐
-                 │                  │                  │
-                 ▼                  ▼                  ▼
-              CSV Files          JSON Files          APIs
-                 │                  │                  │
-                 └──────────────────┼──────────────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │    INGESTION LAYER   │
-                         │       Python         │
-                         │      Airflow         │
-                         └──────────┬───────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │     OBJECT STORAGE   │
-                         │       MinIO / S3     │
-                         └──────────┬───────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │    BRONZE / RAW      │
-                         └──────────┬───────────┘
-                                    │
-                ┌───────────────────┼───────────────────┐
-                │                   │                   │
-                ▼                   ▼                   ▼
-          MEDALLION              KIMBALL              INMON
-          ARCHITECTURE           WAREHOUSE              EDW
-                │                   │                   │
-                ▼                   ▼                   ▼
-             SILVER              STAR SCHEMA       NORMALIZED EDW
-                │                   │                   │
-                ▼                   ▼                   ▼
-              GOLD             DATA MARTS         DATA MARTS
-                │                   │                   │
-                └───────────────────┼───────────────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │    DATA SERVING      │
-                         │ PostgreSQL / DuckDB  │
-                         └──────────┬───────────┘
-                                    ▼
-                         ┌──────────────────────┐
-                         │       POWER BI       │
-                         └──────────────────────┘
-```
+* Number of records processed
+* Number of records rejected
+* Number of duplicate records
+* Data-quality percentage
+* Pipeline execution time
+* Last successful execution
+* Pipeline status
 
 ---
 
-# 4. Technology Stack
+# 5. Source Systems
 
-We will introduce technologies gradually rather than using everything from day one.
+The project will use multiple data sources to simulate a realistic e-commerce environment.
 
-| Area            | Technology                    |
-| --------------- | ----------------------------- |
-| Programming     | Python                        |
-| SQL             | PostgreSQL                    |
-| Object Storage  | MinIO                         |
-| File Format     | Parquet                       |
-| Processing      | Python initially, Spark later |
-| Transformation  | SQL / dbt                     |
-| Orchestration   | Apache Airflow                |
-| Containers      | Docker                        |
-| BI              | Power BI                      |
-| Version Control | Git / GitHub                  |
-| Documentation   | Markdown                      |
-| Optional        | DuckDB                        |
-| Optional        | Great Expectations / Soda     |
-| Optional        | Kafka                         |
-
-Important:
-
-**Do not add Kafka, Spark, Kubernetes, etc. just because they are popular.**
-
-Every technology should solve a problem.
-
----
-
-# 5. Phase 0 — Project Planning
-
-Before writing code, define the project.
-
-## Step 0.1 — Define the business
-
-Write down:
-
-* Company type
-* Products
-* Customers
-* Countries
-* Orders
-* Payments
-* Shipping
-* Reviews
-
-## Step 0.2 — Define business questions
-
-Create a document containing the questions the company wants answered.
-
-Example:
+The main entities are:
 
 ```text
-1. What is total revenue?
-2. What is monthly revenue?
-3. What are the top 10 products?
-4. Which countries generate the most revenue?
-5. What is the average order value?
-6. How many active customers exist?
-7. What is the customer retention rate?
-8. Which products have declining sales?
+Customer
+Product
+Order
+Order Item
+Payment
+Shipping
+Review
+Marketing Event
+Exchange Rate
 ```
 
-These questions will eventually determine the Gold layer, warehouse design, and Power BI dashboards.
+## The original project documentation defines these entities as the core source-domain objects. The existing Bronze implementation also includes these entities and ingestion metadata such as `source_file`, `ingestion_timestamp`, `batch_id`, and `source_system`.
 
-## Step 0.3 — Define project requirements
+# 6. Source Data Design
 
-Functional requirements:
+## 6.1 Customer
 
-* Ingest multiple data sources
-* Store raw data
-* Clean data
-* Transform data
-* Implement Medallion architecture
-* Implement Kimball architecture
-* Implement Inmon architecture
-* Orchestrate pipelines
-* Validate data
-* Produce analytical datasets
-* Build dashboards
-
-Non-functional requirements:
-
-* Reproducibility
-* Maintainability
-* Scalability
-* Reliability
-* Data quality
-* Logging
-* Documentation
-
----
-
-# 6. Phase 1 — Design the Source Systems
-
-We need realistic source data.
-
-Do not begin with one perfect CSV.
-
-Use multiple formats.
-
-## Source 1 — Orders
-
-Example:
-
-```text
-orders.csv
-```
-
-Columns:
-
-```text
-order_id
-customer_id
-product_id
-order_date
-quantity
-unit_price
-discount
-currency
-payment_method
-shipping_country
-```
-
-## Source 2 — Customers
-
-JSON:
-
-```text
-customers.json
-```
-
-Columns:
+Example attributes:
 
 ```text
 customer_id
 first_name
 last_name
 email
+phone
+gender
+date_of_birth
 country
+city
 registration_date
+customer_status
 ```
 
-## Source 3 — Products
+---
 
-CSV:
-
-```text
-products.csv
-```
-
-Columns:
+## 6.2 Product
 
 ```text
 product_id
@@ -340,36 +227,41 @@ subcategory
 brand
 cost
 price
+stock_quantity
 ```
 
-## Source 4 — Reviews
+---
 
-JSON:
-
-```text
-reviews.json
-```
-
-Columns:
+## 6.3 Order
 
 ```text
-review_id
+order_id
 customer_id
-product_id
-rating
-review_text
-review_date
+order_date
+order_status
+currency
+shipping_country
+shipping_city
 ```
 
-## Source 5 — Payments
+---
 
-CSV or database table:
+## 6.4 Order Item
 
 ```text
-payments.csv
+order_id
+product_id
+quantity
+unit_price
+discount
+cost_at_sale
 ```
 
-Columns:
+An order can contain multiple products, therefore the relationship between orders and products is represented through the order-item entity.
+
+---
+
+## 6.5 Payment
 
 ```text
 payment_id
@@ -379,76 +271,105 @@ payment_method
 amount
 currency
 payment_status
+transaction_reference
 ```
 
-## Source 6 — Shipping
+---
 
-CSV:
-
-```text
-shipping.csv
-```
-
-Columns:
+## 6.6 Shipping
 
 ```text
 shipment_id
 order_id
 shipping_date
+estimated_delivery_date
 delivery_date
 shipping_country
+shipping_city
 shipping_method
 shipping_status
+shipping_cost
 ```
-
-## Source 7 — External API
-
-Use an external API for something such as:
-
-* Currency exchange rates
-* Country information
-* Economic indicators
-
-This teaches API ingestion.
 
 ---
 
-# 7. Phase 2 — Make the Source Data Messy
-
-This phase is extremely important.
-
-Real Data Engineering systems rarely receive perfect data.
-
-Intentionally introduce realistic problems.
-
-## Problem 1 — NULL values
-
-Example:
+## 6.7 Review
 
 ```text
-customer_id = NULL
+review_id
+customer_id
+product_id
+rating
+review_text
+review_date
+verified_purchase
+review_status
 ```
 
-## Problem 2 — Duplicate records
+---
 
-Example:
+## 6.8 Marketing Event
 
 ```text
-order_id = 1001
-order_id = 1001
+event_id
+customer_id
+campaign_id
+event_type
+channel
+event_timestamp
+device_type
+country
 ```
 
-## Problem 3 — Different date formats
+---
 
-For example:
+## 6.9 Exchange Rate
 
 ```text
-2026-01-15
-15/01/2026
-01-15-2026
+requested_date
+date
+base
+quote
+rate
 ```
 
-## Problem 4 — Inconsistent country names
+Exchange-rate data will allow transactions recorded in different currencies to be converted into a common reporting currency when required.
+
+---
+
+# 7. Intentionally Dirty Source Data
+
+The source data should not be perfectly clean.
+
+The purpose is to simulate the problems that Data Engineers encounter in real-world systems.
+
+Examples include:
+
+### Missing values
+
+```text
+email = NULL
+city = NULL
+price = NULL
+```
+
+### Duplicate records
+
+The same customer, order, or payment may appear more than once.
+
+### Invalid values
+
+```text
+quantity = -5
+price = -100
+rating = 8
+```
+
+### Invalid relationships
+
+An order may reference a customer that does not exist.
+
+### Inconsistent country names
 
 ```text
 Egypt
@@ -457,23 +378,23 @@ EG
 EGY
 ```
 
-## Problem 5 — Invalid values
+### Inconsistent text formatting
 
 ```text
-quantity = -4
-price = -100
-rating = 9
+Cairo
+CAIRO
+cairo
 ```
 
-## Problem 6 — Wrong data types
+### Invalid dates
 
-For example:
+Examples include:
 
-```text
-quantity = "five"
-```
+* Future registration dates
+* Delivery dates before shipping dates
+* Payment dates inconsistent with order dates
 
-## Problem 7 — Invalid emails
+### Invalid email addresses
 
 ```text
 omar@
@@ -481,130 +402,137 @@ user.com
 abc
 ```
 
-## Problem 8 — Inconsistent text
-
-```text
-Laptop
-laptop
-LAPTOP
-```
-
-## Problem 9 — Missing foreign keys
-
-An order may reference:
-
-```text
-customer_id = 999999
-```
-
-while customer 999999 does not exist.
+The purpose of introducing these problems is to provide realistic requirements for the Bronze, Silver, Gold, and data-quality processes.
 
 ---
 
-# 8. Phase 3 — Build the Source Data Generator
+# 8. Raw Data Storage
 
-Instead of manually creating thousands of rows, build Python scripts that generate realistic data.
+## 8.1 MinIO
 
-Example structure:
+MinIO will be used as the project's **object-storage system representing the Data Lake**.
+
+Its primary purpose is to preserve the raw source data before transformation.
+
+The conceptual structure can be:
 
 ```text
-data_generator/
+MinIO
 │
-├── generate_customers.py
-├── generate_products.py
-├── generate_orders.py
-├── generate_payments.py
-├── generate_reviews.py
-└── generate_shipping.py
+└── ecommerce-data
+    │
+    └── raw/
+        ├── customers/
+        ├── products/
+        ├── orders/
+        ├── order_items/
+        ├── payments/
+        ├── shipping/
+        ├── reviews/
+        ├── marketing/
+        └── exchange_rates/
 ```
 
-The generator should create:
+The raw data should remain as close as possible to the original source representation.
 
-* Normal records
-* Duplicate records
-* NULL values
-* Invalid values
-* Different formats
+### Important distinction
 
-This makes your project reproducible.
+MinIO is **not** the Bronze/Silver/Gold architecture itself.
 
-You should eventually be able to run:
+MinIO is the **storage technology**.
 
-```text
-python generate_data.py
-```
+Bronze, Silver, and Gold are **logical data-processing layers**.
 
-and recreate the entire source environment.
+The project can use PostgreSQL schemas for these layers, while MinIO preserves the raw files.
 
 ---
 
-# 9. Phase 4 — Design the Data Lake
+# 9. Overall Data Architecture
 
-Now introduce object storage.
-
-Use MinIO locally because it provides an S3-compatible object-storage environment.
-
-Conceptually:
+The project's architecture is divided into several logical stages.
 
 ```text
-Data Sources
-     ↓
-   MinIO
-     ↓
-Raw Data
+SOURCE SYSTEMS
+      │
+      ▼
+DATA INGESTION
+      │
+      ▼
+RAW STORAGE
+    MINIO
+      │
+      ▼
+   BRONZE
+      │
+      ▼
+   SILVER
+      │
+      ▼
+    GOLD
+      │
+      ├──────────────────┐
+      ▼                  ▼
+   KIMBALL             INMON
+      │                  │
+      ▼                  ▼
+STAR SCHEMA          NORMALIZED EDW
+      │                  │
+      ▼                  ▼
+   POWER BI          DATA MARTS
+                         │
+                         ▼
+                      POWER BI
 ```
 
-Create buckets such as:
+The central Medallion flow is:
 
 ```text
-ecommerce-raw
-ecommerce-processed
-ecommerce-analytics
+Bronze → Silver → Gold
 ```
 
-A possible structure:
-
-```text
-ecommerce-raw/
-
-    orders/
-        year=2026/
-        month=01/
-
-    customers/
-        year=2026/
-        month=01/
-
-    products/
-
-    payments/
-
-    reviews/
-
-    shipping/
-```
+The warehouse methodologies are separate modeling approaches that use the refined data.
 
 ---
 
-# 10. Phase 5 — Build the Ingestion Pipeline
+# 10. Medallion Architecture
 
-Now write Python ingestion jobs.
-
-For each source:
+The Medallion Architecture organizes data according to its degree of refinement.
 
 ```text
-Source
+Bronze
    ↓
-Read
+Silver
    ↓
-Validate basic file/API availability
-   ↓
-Add ingestion metadata
-   ↓
-Store raw data
+Gold
 ```
 
-Useful metadata:
+Each layer has a different responsibility.
+
+---
+
+# 11. Bronze Layer
+
+## 11.1 Purpose
+
+The Bronze layer represents the first persistent representation of the ingested data.
+
+It should preserve the source structure as much as practical while adding ingestion metadata required for traceability.
+
+The project uses a PostgreSQL `bronze` schema containing tables such as:
+
+```text
+bronze.customer
+bronze.product
+bronze.orders
+bronze.order_item
+bronze.payment
+bronze.shipping
+bronze.review
+bronze.marketing_event
+bronze.exchange_rate
+```
+
+The existing Bronze design includes metadata such as:
 
 ```text
 source_file
@@ -613,234 +541,187 @@ batch_id
 source_system
 ```
 
-Example:
+which provides lineage and ingestion traceability.
 
-```text
-orders.csv
-       ↓
-Python
-       ↓
-Raw Parquet
-       ↓
-MinIO
-```
+## 11.2 Bronze Responsibilities
 
-Important principle:
+The Bronze layer should:
 
-**The raw layer should preserve what came from the source.**
+* Preserve ingested records.
+* Maintain source information.
+* Record ingestion timestamps.
+* Record batch identifiers.
+* Preserve source-system information.
+* Avoid unnecessary business transformations.
+* Provide a reliable input for downstream processing.
 
-Do not destroy information during ingestion.
+Bronze should **not** be treated as the final analytical layer.
 
 ---
 
-# 11. Phase 6 — Introduce the Bronze Layer
+# 12. Silver Layer
 
-The Bronze layer represents ingested source data.
+## 12.1 Purpose
 
-Example:
+The Silver layer contains cleaned, standardized, validated, and structurally improved data.
 
-```text
-Bronze
-│
-├── bronze_orders
-├── bronze_customers
-├── bronze_products
-├── bronze_payments
-├── bronze_reviews
-└── bronze_shipping
-```
-
-At this stage:
-
-* Preserve source data
-* Add metadata
-* Preserve problematic records
-* Avoid heavy business transformations
-
-The Bronze layer is your recovery point.
-
-If the Silver transformation fails, you should not need to download the source again.
-
----
-
-# 12. Phase 7 — Build the Silver Layer
-
-Now clean and standardize the data.
-
-For every dataset:
+The transformation process can include:
 
 ```text
 Bronze
    ↓
-Data Validation
-   ↓
-Cleaning
-   ↓
-Standardization
+Data type correction
    ↓
 Deduplication
    ↓
-Business Rules
+Standardization
+   ↓
+Validation
+   ↓
+Relationship checks
    ↓
 Silver
 ```
 
-Example:
+## 12.2 Silver Responsibilities
 
-```text
-bronze_orders
-      ↓
-remove duplicates
-      ↓
-validate order_id
-      ↓
-validate quantity
-      ↓
-validate price
-      ↓
-standardize dates
-      ↓
-standardize currency
-      ↓
-silver_orders
-```
+Examples include:
 
-## Silver data quality rules
-
-Example:
-
-```text
-order_id must NOT be NULL
-
-quantity > 0
-
-unit_price >= 0
-
-currency must exist
-
-order_date must be valid
-
-customer_id must exist
-```
+* Standardizing country codes.
+* Standardizing text values.
+* Correcting data types.
+* Removing or handling duplicates.
+* Validating dates.
+* Validating numeric values.
+* Validating relationships.
+* Handling missing values.
+* Separating invalid records when appropriate.
 
 Invalid records should not simply disappear.
 
-Create a rejected/quarantine dataset:
-
-```text
-silver/
-    valid/
-
-quarantine/
-    invalid_orders/
-```
-
-This is an important Data Engineering practice.
+Where appropriate, they should be stored in a quarantine/rejected-record area so that the pipeline remains auditable.
 
 ---
 
-# 13. Phase 8 — Build the Gold Layer
+# 13. Gold Layer
 
-Gold is where data becomes business-oriented.
+## 13.1 Purpose
 
-Instead of:
+The Gold layer contains **business-ready analytical data**.
+
+Unlike Silver, which focuses primarily on data quality and consistency, Gold focuses on making the data useful for business analysis.
+
+The Gold layer should be designed around the business questions.
+
+Examples include:
 
 ```text
-orders
-customers
-products
+gold.daily_sales
+gold.monthly_sales
+gold.product_sales
+gold.customer_sales
+gold.country_sales
+gold.shipping_performance
+gold.marketing_performance
 ```
 
-we create datasets such as:
+## 13.2 Example Gold Dataset
 
 ```text
-daily_sales
-monthly_sales
-customer_metrics
-product_metrics
-country_metrics
-```
+gold.daily_sales
 
-Example:
-
-```text
-gold_daily_sales
-------------------------
 date
-country
 orders
 customers
 units_sold
 revenue
+cost
 profit
 average_order_value
 ```
 
-This layer should be easy for analytical tools to consume.
+The Gold layer therefore transforms cleaned operational data into datasets that directly support analytical requirements.
 
 ---
 
-# 14. Phase 9 — Implement Kimball
+# 14. Gold Layer Design Principles
 
-Now create a dimensional data warehouse.
+Gold datasets should:
 
-The first thing you must define is:
+* Be business-oriented.
+* Contain meaningful metrics.
+* Reduce unnecessary complexity for analytical users.
+* Support reporting requirements.
+* Use consistent business definitions.
+* Avoid exposing unnecessary operational complexity.
 
-## Grain
+The Gold layer is the **final stage of the Medallion data refinement process**.
 
-For example:
+It is not automatically the same thing as a Kimball warehouse.
 
-> One row in fact_sales represents one product line within one customer order.
+---
 
-This decision is extremely important.
+# 15. Data Warehouse Layer
 
-Then create dimensions.
-
-### dim_date
-
-```text
-date_key
-full_date
-day
-month
-month_name
-quarter
-year
-week
-```
-
-### dim_customer
+After the Medallion pipeline produces refined analytical data, the project will demonstrate two different warehouse methodologies:
 
 ```text
-customer_key
-customer_id
-first_name
-last_name
-email
-country
-registration_date
+                    GOLD
+                     │
+             ┌───────┴───────┐
+             │               │
+             ▼               ▼
+          KIMBALL          INMON
+             │               │
+             ▼               ▼
+       Dimensional          EDW
+       Warehouse
 ```
 
-### dim_product
+These approaches will be implemented and compared to demonstrate architectural understanding.
+
+---
+
+# 16. Kimball Methodology
+
+## 16.1 Purpose
+
+Kimball focuses on dimensional modeling for analytical workloads.
+
+The warehouse will organize information into:
+
+* Fact tables
+* Dimension tables
+
+The primary structure will be a Star Schema.
+
+---
+
+# 17. Kimball Star Schema
+
+The primary sales model will use:
 
 ```text
-product_key
-product_id
-product_name
-category
-subcategory
-brand
+                    dim_customer
+                         │
+                         │
+dim_product ─────── fact_sales ─────── dim_date
+                         │
+                         │
+                    dim_payment
 ```
 
-### dim_payment
+---
 
-```text
-payment_key
-payment_method
-payment_status
-```
+# 18. Fact Sales
 
-### fact_sales
+The fact table will represent the selected business grain.
+
+### Proposed grain
+
+> One row in `fact_sales` represents one product line within one customer order.
+
+Possible columns:
 
 ```text
 sales_key
@@ -857,27 +738,88 @@ cost
 profit
 ```
 
-Architecture:
-
-```text
-              dim_customer
-                   │
-                   │
-dim_product ─── fact_sales ─── dim_date
-                   │
-                   │
-              dim_payment
-```
-
-This is the **Star Schema**.
+The grain must be clearly documented because it determines what each row represents and prevents incorrect aggregation.
 
 ---
 
-# 15. Phase 10 — Implement Slowly Changing Dimensions
+# 19. Customer Dimension
 
-Implement at least one SCD Type 2 example.
+```text
+dim_customer
 
-Use customers.
+customer_key
+customer_id
+first_name
+last_name
+email
+country
+city
+registration_date
+customer_status
+```
+
+`customer_key` will act as the warehouse surrogate key.
+
+---
+
+# 20. Product Dimension
+
+```text
+dim_product
+
+product_key
+product_id
+product_name
+category
+subcategory
+brand
+```
+
+---
+
+# 21. Date Dimension
+
+A dedicated date dimension should be created.
+
+Example:
+
+```text
+dim_date
+
+date_key
+full_date
+day
+month
+month_name
+quarter
+year
+week
+day_of_week
+```
+
+This allows Power BI and SQL queries to perform flexible time-based analysis.
+
+---
+
+# 22. Payment Dimension
+
+```text
+dim_payment
+
+payment_key
+payment_method
+payment_status
+```
+
+Depending on the final warehouse design, additional payment attributes can be included.
+
+---
+
+# 23. Slowly Changing Dimensions
+
+At least one Slowly Changing Dimension Type 2 implementation should be demonstrated.
+
+Customer is the preferred example.
 
 Suppose:
 
@@ -886,302 +828,463 @@ Customer 100
 Country = Egypt
 ```
 
-Later:
+Later the customer's country changes:
 
 ```text
 Country = UAE
 ```
 
-Instead of overwriting the old record:
+Instead of overwriting historical information, the warehouse keeps both versions:
 
 ```text
-customer_key | customer_id | country | start_date | end_date | current
-1            | 100         | Egypt   | 2025-01-01 | 2026-06-01 | 0
-2            | 100         | UAE     | 2026-06-01 | NULL       | 1
+customer_key | customer_id | country | effective_date | expiration_date | is_current
+-------------|-------------|---------|----------------|-----------------|-----------
+1            | 100         | Egypt   | 2025-01-01     | 2026-06-01      | 0
+2            | 100         | UAE     | 2026-06-01     | NULL            | 1
 ```
 
-This allows historical analysis.
+This allows historical analysis using the customer attributes that were valid at the time of the transaction.
 
 ---
 
-# 16. Phase 11 — Implement Inmon
+# 24. Inmon Methodology
 
-Now create an alternative warehouse architecture.
+## 24.1 Purpose
 
-The Inmon approach will begin with a normalized Enterprise Data Warehouse.
+The Inmon approach will demonstrate a centralized, normalized Enterprise Data Warehouse.
 
-For example:
+Unlike the Kimball model, the EDW will emphasize enterprise integration and normalization.
+
+A simplified structure can contain:
 
 ```text
 EDW
 │
-├── Customer
-├── Customer_Address
-├── Customer_Country
-├── Product
-├── Product_Category
-├── Order
-├── Order_Line
-├── Payment
-├── Shipment
-└── Review
+├── customer
+├── customer_country
+├── product
+├── product_category
+├── order
+├── order_item
+├── payment
+├── shipping
+└── review
 ```
 
-The EDW should emphasize integrated and normalized enterprise data.
-
-Then create downstream data marts:
-
-```text
-                 Enterprise Data Warehouse
-                            │
-             ┌──────────────┼──────────────┐
-             │              │              │
-             ▼              ▼              ▼
-        Sales Mart     Customer Mart   Product Mart
-```
+The exact normalized structure should follow the relationships and business rules of the source domain.
 
 ---
 
-# 17. Phase 12 — Compare the Architectures
+# 25. Inmon Data Marts
 
-Create documentation comparing:
+The normalized EDW can then provide data to downstream subject-oriented data marts.
 
-## Medallion
+For example:
 
 ```text
-Source
+                Enterprise Data Warehouse
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+         Sales Mart   Customer Mart  Product Mart
+```
+
+The data marts can then provide simplified analytical datasets for BI consumption.
+
+---
+
+# 26. Kimball vs. Inmon
+
+The project should explicitly compare the two approaches.
+
+| Area           | Kimball                      | Inmon                        |
+| -------------- | ---------------------------- | ---------------------------- |
+| Primary focus  | Analytics                    | Enterprise integration       |
+| Core model     | Dimensional                  | Normalized                   |
+| Main structure | Star schema                  | Normalized EDW               |
+| Facts          | Central                      | Not necessarily central      |
+| Dimensions     | Central concept              | Less central                 |
+| Data marts     | Often dimensional and direct | Usually downstream from EDW  |
+| BI usability   | High                         | Requires additional modeling |
+| Main strength  | Business analytics           | Enterprise-wide integration  |
+
+The project should not present one methodology as universally superior.
+
+Instead, it should explain the trade-offs and appropriate use cases.
+
+---
+
+# 27. Relationship Between Medallion, Kimball, and Inmon
+
+These concepts should not be treated as three competing names for the same thing.
+
+They solve different architectural problems.
+
+### Medallion
+
+Defines **data refinement stages**:
+
+```text
+Bronze → Silver → Gold
+```
+
+### Kimball
+
+Defines a **dimensional warehouse modeling approach**:
+
+```text
+Facts + Dimensions
+```
+
+### Inmon
+
+Defines a **normalized Enterprise Data Warehouse approach**:
+
+```text
+Normalized EDW → Data Marts
+```
+
+Therefore, the project can use them together.
+
+For example:
+
+```text
+Raw
  ↓
 Bronze
  ↓
 Silver
  ↓
 Gold
+ ↓
+Kimball Warehouse
+ ↓
+Power BI
 ```
 
-Focus:
-
-* Data lifecycle
-* Lakehouse-style organization
-* Progressive refinement
-
-## Kimball
+while also demonstrating:
 
 ```text
-Source
+Gold / Refined Data
  ↓
-Dimensional Warehouse
- ↓
-BI
-```
-
-Focus:
-
-* Analytics
-* Star schemas
-* Facts and dimensions
-* Business processes
-
-## Inmon
-
-```text
-Source
- ↓
-Normalized EDW
+Inmon EDW
  ↓
 Data Marts
  ↓
-BI
+Power BI
 ```
-
-Focus:
-
-* Enterprise integration
-* Normalization
-* Centralized enterprise warehouse
-
-The project should explain not only how each was implemented, but also:
-
-> When would you choose one over another?
 
 ---
 
-# 18. Phase 13 — Introduce dbt
+# 28. Data Warehouse Technology
 
-Once the SQL transformations are working, introduce dbt.
+PostgreSQL will be used as the relational database platform for the warehouse implementations.
 
-Organize models into:
+The project can logically separate schemas such as:
 
 ```text
-models/
+PostgreSQL
 │
-├── staging/
+├── bronze
+├── silver
+├── gold
 │
-├── intermediate/
+├── kimball
 │
-└── marts/
+└── inmon
 ```
 
-Example:
-
-```text
-stg_orders.sql
-stg_customers.sql
-stg_products.sql
-```
-
-Then:
-
-```text
-int_orders_clean.sql
-int_customer_history.sql
-```
-
-Then:
-
-```text
-fct_sales.sql
-dim_customer.sql
-dim_product.sql
-```
-
-Add dbt tests such as:
-
-```text
-unique
-not_null
-accepted_values
-relationships
-```
-
-This gives you automated data quality testing.
+This makes the architectural boundaries clear while allowing all components to be demonstrated in a local development environment.
 
 ---
 
-# 19. Phase 14 — Introduce Airflow
+# 29. Data Ingestion
 
-Once the pipeline works manually, automate it.
+Python will be used to implement the initial ingestion processes.
+
+The ingestion layer should:
+
+1. Read source data.
+2. Validate basic file/source availability.
+3. Assign ingestion metadata.
+4. Generate a batch identifier.
+5. Load raw data into the appropriate storage.
+6. Preserve source information.
+7. Record execution information.
 
 Conceptually:
 
 ```text
-             Airflow DAG
-                  │
-        ┌─────────┼─────────┐
-        ▼         ▼         ▼
-     Extract   Extract   Extract
-        │         │         │
-        └─────────┼─────────┘
-                  ▼
-             Bronze Load
-                  │
-                  ▼
-            Silver Transform
-                  │
-                  ▼
-             Gold Transform
-                  │
-                  ▼
-          Warehouse Load
-                  │
-                  ▼
-             Data Quality
-                  │
-                  ▼
-            Pipeline Success
+Source
+  ↓
+Python Ingestion
+  ↓
+MinIO Raw Storage
+  ↓
+PostgreSQL Bronze
 ```
-
-Airflow should handle:
-
-* Scheduling
-* Dependencies
-* Retries
-* Failure handling
-* Logging
-* Monitoring
 
 ---
 
-# 20. Phase 15 — Incremental Processing
+# 30. Batch Processing
 
-This is one of the most important advanced phases.
+The initial implementation will use batch processing.
 
-Do not reload everything every time.
+For example:
+
+```text
+Daily Batch
+     ↓
+Read new source data
+     ↓
+Ingest
+     ↓
+Transform
+     ↓
+Validate
+     ↓
+Load analytical structures
+```
+
+The batch identifier will allow individual executions to be traced.
+
+---
+
+# 31. Incremental Processing
+
+The pipeline should support incremental processing rather than reprocessing all historical records during every execution.
+
+A watermark or timestamp can be used.
 
 Example:
-
-```text
-Initial Load
-
-1,000,000 records
-        ↓
-Warehouse
-```
-
-Next day:
-
-```text
-20,000 new records
-        ↓
-Process only new records
-```
-
-You can implement a watermark:
 
 ```text
 last_processed_timestamp
 ```
 
-For example:
+New records can then be identified using:
 
-```text
+```sql
 SELECT *
 FROM orders
 WHERE updated_at > last_processed_timestamp;
 ```
 
-Eventually introduce:
-
-* Incremental loads
-* Upserts
-* Merge logic
-* Idempotency
-* Late-arriving data
+The exact implementation should depend on the available source attributes.
 
 ---
 
-# 21. Phase 16 — Data Quality Framework
+# 32. Data Quality Framework
 
-Create a dedicated data-quality layer.
+Data quality is a central part of the project.
 
-Track:
+The pipeline should validate:
+
+### Completeness
+
+Required fields should not be NULL.
+
+### Uniqueness
+
+Primary identifiers should not contain unexpected duplicates.
+
+### Validity
+
+Values should fall within acceptable ranges.
+
+Example:
+
+```text
+rating BETWEEN 1 AND 5
+quantity > 0
+price >= 0
+```
+
+### Referential Integrity
+
+Relationships should be valid.
+
+Example:
+
+```text
+order.customer_id
+        ↓
+customer.customer_id
+```
+
+### Consistency
+
+Related fields should not contradict one another.
+
+Example:
+
+```text
+delivery_date >= shipping_date
+```
+
+### Timeliness
+
+Data should arrive within the expected processing window.
+
+---
+
+# 33. Rejected and Quarantined Data
+
+Invalid records should be handled explicitly.
+
+Conceptually:
+
+```text
+                Silver Transformation
+                       │
+              ┌────────┴────────┐
+              │                 │
+              ▼                 ▼
+          Valid Data        Invalid Data
+              │                 │
+              ▼                 ▼
+           Silver          Quarantine
+```
+
+The quarantine area should preserve enough information to investigate the failure.
+
+---
+
+# 34. Data Quality Metrics
+
+The project should calculate metrics such as:
 
 ```text
 Total records
 Valid records
 Rejected records
 Duplicate records
-NULL records
-Invalid records
+NULL violations
+Referential-integrity violations
+Validation success rate
 ```
 
 Example:
 
 ```text
-Dataset: orders
+Total records:        100,000
+Valid records:         97,500
+Rejected records:       2,500
 
-Total records:       1,000,000
-Valid records:         982,000
-Rejected records:       18,000
-Duplicates:              4,200
-NULL customer IDs:       7,300
-Invalid prices:          1,100
+Data Quality Rate:
+97.5%
 ```
 
-Create a pipeline-quality table:
+---
+
+# 35. dbt
+
+dbt will be used to organize and test SQL-based transformations.
+
+A possible structure is:
 
 ```text
-pipeline_execution
-------------------------
+dbt/
+│
+├── models/
+│   ├── staging/
+│   ├── intermediate/
+│   └── marts/
+│
+├── tests/
+├── macros/
+└── dbt_project.yml
+```
+
+Example models:
+
+```text
+stg_orders
+stg_customers
+stg_products
+```
+
+Intermediate models:
+
+```text
+int_orders_clean
+int_customer_history
+```
+
+Analytical models:
+
+```text
+fct_sales
+dim_customer
+dim_product
+```
+
+dbt tests should include:
+
+```text
+unique
+not_null
+relationships
+accepted_values
+```
+
+The purpose is to provide structured transformations, testing, documentation, and lineage.
+
+---
+
+# 36. Airflow
+
+Apache Airflow will orchestrate the complete pipeline.
+
+The pipeline should eventually resemble:
+
+```text
+                         START
+                           │
+             ┌─────────────┼─────────────┐
+             ▼             ▼             ▼
+         Customers      Products       Orders
+             │             │             │
+             └─────────────┼─────────────┘
+                           ▼
+                      Bronze Load
+                           │
+                           ▼
+                    Silver Transformation
+                           │
+                           ▼
+                      Gold Creation
+                           │
+                 ┌─────────┴─────────┐
+                 ▼                   ▼
+             Kimball               Inmon
+             Warehouse               EDW
+                 │                   │
+                 └─────────┬─────────┘
+                           ▼
+                     Data Quality
+                           │
+                           ▼
+                          END
+```
+
+Airflow should handle:
+
+* Scheduling
+* Task dependencies
+* Retries
+* Failure handling
+* Logging
+* Pipeline monitoring
+
+---
+
+# 37. Pipeline Logging
+
+Each pipeline execution should record information such as:
+
+```text
 run_id
 pipeline_name
 start_time
@@ -1189,47 +1292,61 @@ end_time
 status
 records_processed
 records_rejected
-error_message
 ```
+
+This provides visibility into pipeline behavior.
 
 ---
 
-# 22. Phase 17 — Logging and Monitoring
+# 38. Data Lineage
 
-Every pipeline should generate logs.
+The project should document where data comes from and how it changes.
 
-Track:
-
-```text
-Pipeline started
-Source discovered
-Records extracted
-Records loaded
-Transformation started
-Transformation completed
-Data quality validation
-Pipeline completed
-```
-
-For failures:
+Example:
 
 ```text
-ERROR
-Pipeline: orders_pipeline
-Step: silver_orders
-Reason: Invalid date format
-Run ID: 20260817_001
+orders.csv
+    ↓
+bronze.orders
+    ↓
+silver.orders
+    ↓
+gold.daily_sales
+    ↓
+kimball.fact_sales
+    ↓
+Power BI
 ```
+
+This makes the transformation path understandable and auditable.
 
 ---
 
-# 23. Phase 18 — Power BI
+# 39. Power BI
 
-Now connect Power BI to your analytical layer.
+Power BI will be used as the primary Business Intelligence and visualization tool.
 
-Create several dashboards.
+The preferred analytical source for the main dashboard will be the **Kimball warehouse**, because the Star Schema is designed specifically for analytical querying.
 
-## Dashboard 1 — Executive Overview
+The conceptual flow is:
+
+```text
+Kimball Warehouse
+       ↓
+    Power BI
+       ↓
+Dashboards & Reports
+```
+
+The Inmon implementation can also be exposed through its data marts where appropriate.
+
+---
+
+# 40. Power BI Dashboard
+
+The dashboard should contain multiple analytical pages.
+
+## Page 1 — Executive Overview
 
 KPIs:
 
@@ -1241,257 +1358,222 @@ Total Profit
 Average Order Value
 ```
 
-Charts:
+Visualizations:
 
 * Revenue over time
 * Revenue by country
 * Revenue by category
-* Profit trend
 
 ---
 
-## Dashboard 2 — Sales
+## Page 2 — Sales Analysis
 
-Include:
+Visualizations:
 
-* Daily revenue
 * Monthly revenue
-* Sales by category
-* Sales by country
 * Top products
-* Bottom products
+* Sales by country
+* Units sold
+* Profit by category
 
 ---
 
-## Dashboard 3 — Customers
+## Page 3 — Customer Analysis
 
-Include:
+Visualizations:
 
 * Customer count
 * New customers
 * Returning customers
 * Revenue per customer
-* Customer segmentation
+* Top customers
 
 ---
 
-## Dashboard 4 — Products
+## Page 4 — Operations
 
-Include:
+Visualizations:
 
-* Product revenue
-* Product profit
-* Units sold
-* Category performance
-* Top products
+* Shipping delays
+* Average delivery time
+* Shipping performance by country
+* Shipping method performance
 
 ---
 
-## Dashboard 5 — Data Engineering
+## Page 5 — Data Engineering
 
-This dashboard is particularly useful for demonstrating the engineering side.
+This page demonstrates the health of the pipeline.
 
-Show:
+Metrics:
 
 ```text
 Pipeline Status
 Records Processed
 Records Rejected
-Data Quality Score
+Data Quality %
 Last Successful Run
 Pipeline Duration
-Failed Jobs
 ```
 
 ---
 
-# 24. Phase 19 — Data Lineage
+# 41. Docker
 
-Document the flow of data.
+Docker will be used to simplify the local project environment.
 
-For example:
-
-```text
-orders.csv
-    ↓
-raw_orders
-    ↓
-bronze_orders
-    ↓
-silver_orders
-    ↓
-fact_sales
-    ↓
-Power BI
-```
-
-You should be able to answer:
-
-> Where did this dashboard number come from?
-
-For example:
+Possible services include:
 
 ```text
-Power BI Revenue
-        ↓
-fact_sales.revenue
-        ↓
-silver_orders
-        ↓
-bronze_orders
-        ↓
-orders.csv
+PostgreSQL
+MinIO
+Airflow
+dbt
 ```
 
----
+Additional services should only be introduced when they provide a clear purpose.
 
-# 25. Phase 20 — Dockerize the Project
-
-Once everything works locally, containerize the infrastructure.
-
-Possible services:
+The infrastructure should be reproducible through:
 
 ```text
 docker-compose.yml
-
-services:
-
-    postgres
-
-    minio
-
-    airflow
-
-    dbt
-
-    spark
 ```
-
-Do not containerize everything immediately.
-
-Dockerize once the individual components work.
 
 ---
 
-# 26. Phase 21 — Optional Apache Spark
+# 42. Apache Spark
 
-Only introduce Spark when you have a reason.
+Spark is an optional advanced component.
+
+It should not be introduced merely because it is a popular Data Engineering technology.
+
+The project should demonstrate the reason for using Spark.
 
 For example:
 
 ```text
-1 million rows
-      ↓
-Python/Pandas
+Small dataset
+     ↓
+Python / Pandas
 ```
 
-Then compare with:
+versus:
 
 ```text
-100+ million rows
-      ↓
-Spark
+Very large dataset
+     ↓
+Apache Spark
 ```
 
-Demonstrate:
+The project can demonstrate:
 
 * Distributed processing
-* Data partitioning
-* Parquet
 * Spark SQL
 * PySpark transformations
-
-You can explain why Spark becomes useful as the data volume increases.
+* Parquet
+* Partitioning
 
 ---
 
-# 27. Phase 22 — Performance Optimization
+# 43. Performance Optimization
 
-Investigate:
+Performance should be considered at multiple levels.
 
-### Storage
+## Storage
 
-* CSV vs Parquet
+Compare:
+
+```text
+CSV
+vs
+Parquet
+```
+
+Consider:
+
 * Compression
 * Partitioning
+* File sizes
 
-### SQL
+## PostgreSQL
+
+Consider:
 
 * Indexes
 * Query plans
-* Joins
+* Join strategies
 * Aggregations
 
-### Pipeline
+## Pipeline
+
+Consider:
 
 * Incremental processing
 * Parallel execution
-* Batch size
+* Batch sizes
 
-### Spark
+## Spark
 
-* Partition count
+Consider:
+
+* Partitioning
 * Shuffle
-* Caching
 * Broadcast joins
+* Caching
 
-Document the before/after results.
-
-Example:
-
-```text
-Transformation
-
-Before:
-4 minutes 32 seconds
-
-After:
-48 seconds
-```
+Performance improvements should be measured rather than simply claimed.
 
 ---
 
-# 28. Phase 23 — Testing
+# 44. Testing Strategy
 
-Introduce testing at multiple levels.
+Testing will occur at multiple levels.
 
-### Unit Tests
+## Unit Tests
 
-Test Python functions.
+Test individual Python functions.
 
-### Data Tests
+## Data Tests
 
-Test:
+Validate:
 
 ```text
-IDs are unique
-Required fields are not NULL
-Foreign keys exist
-Values are valid
+Unique IDs
+Required fields
+Foreign keys
+Valid values
+Valid dates
 ```
 
-### Pipeline Tests
+## Transformation Tests
 
-Test:
+Verify:
 
 ```text
-Source → Bronze
 Bronze → Silver
 Silver → Gold
-Gold → Warehouse
 ```
 
-### Integration Tests
+## Warehouse Tests
 
-Make sure components work together.
+Verify:
+
+```text
+Fact relationships
+Dimension relationships
+Surrogate keys
+Historical records
+```
+
+## Integration Tests
+
+Verify that the major components work together.
 
 ---
 
-# 29. Phase 24 — Git and GitHub
+# 45. Repository Structure
 
-The repository should be professionally organized.
-
-Recommended structure:
+The final repository should be organized professionally.
 
 ```text
 ecommerce-data-platform/
@@ -1502,26 +1584,29 @@ ecommerce-data-platform/
 │   ├── architecture.md
 │   ├── business_requirements.md
 │   ├── data_dictionary.md
+│   ├── medallion.md
 │   ├── kimball.md
 │   ├── inmon.md
-│   ├── medallion.md
 │   └── data_quality.md
 │
 ├── data_generator/
 │
 ├── ingestion/
 │
-├── airflow/
-│   └── dags/
+├── sql/
+│   ├── bronze/
+│   ├── silver/
+│   ├── gold/
+│   ├── kimball/
+│   └── inmon/
 │
 ├── dbt/
 │   ├── models/
 │   ├── tests/
 │   └── macros/
 │
-├── spark/
-│
-├── sql/
+├── airflow/
+│   └── dags/
 │
 ├── powerbi/
 │
@@ -1538,446 +1623,623 @@ ecommerce-data-platform/
 
 ---
 
-# 30. Phase 25 — Documentation
+# 46. End-to-End Pipeline
 
-The README should explain:
-
-## Project
-
-What is the project?
-
-## Business Problem
-
-What problem are we solving?
-
-## Architecture
-
-Show the architecture diagram.
-
-## Data Sources
-
-Explain every source.
-
-## Data Quality
-
-Explain what problems exist in the source data.
-
-## Technologies
-
-Explain why each technology was selected.
-
-## Medallion
-
-Explain Bronze/Silver/Gold.
-
-## Kimball
-
-Explain the dimensional warehouse.
-
-## Inmon
-
-Explain the normalized EDW.
-
-## Pipeline
-
-Explain the complete workflow.
-
-## Data Quality
-
-Explain validation and rejected records.
-
-## Power BI
-
-Show dashboard screenshots.
-
-## Performance
-
-Show optimization results.
-
-## How to Run
-
-Give exact setup instructions.
-
----
-
-# 31. Recommended Development Order
-
-This is the most important part.
-
-Do NOT build everything simultaneously.
-
-Follow this order:
+The complete pipeline should ultimately represent:
 
 ```text
-STEP 1
-Business requirements
-        ↓
-STEP 2
-Data model
-        ↓
-STEP 3
-Generate messy source data
-        ↓
-STEP 4
-Python ingestion
-        ↓
-STEP 5
-PostgreSQL + MinIO
-        ↓
-STEP 6
-Bronze layer
-        ↓
-STEP 7
-Silver layer
-        ↓
-STEP 8
-Gold layer
-        ↓
-STEP 9
-Power BI basic dashboard
-        ↓
-STEP 10
-Kimball warehouse
-        ↓
-STEP 11
-Inmon EDW
-        ↓
-STEP 12
-Compare architectures
-        ↓
-STEP 13
-dbt
-        ↓
-STEP 14
-Airflow
-        ↓
-STEP 15
-Incremental processing
-        ↓
-STEP 16
-Data quality framework
-        ↓
-STEP 17
-Logging & monitoring
-        ↓
-STEP 18
-Docker
-        ↓
-STEP 19
-Spark
-        ↓
-STEP 20
-Performance optimization
-        ↓
-STEP 21
-Testing
-        ↓
-STEP 22
-Final documentation
+                         SOURCE SYSTEMS
+                              │
+             ┌────────────────┼────────────────┐
+             │                │                │
+            CSV              JSON             API
+             │                │                │
+             └────────────────┼────────────────┘
+                              ▼
+                       PYTHON INGESTION
+                              │
+                              ▼
+                    ┌──────────────────┐
+                    │      MINIO       │
+                    │   RAW STORAGE    │
+                    └────────┬─────────┘
+                             │
+                             ▼
+                         BRONZE
+                    PostgreSQL schema
+                             │
+                             ▼
+                         SILVER
+                    PostgreSQL schema
+                             │
+                             ▼
+                          GOLD
+                    PostgreSQL schema
+                             │
+                 ┌───────────┴───────────┐
+                 │                       │
+                 ▼                       ▼
+              KIMBALL                  INMON
+          Dimensional DW             Normalized EDW
+                 │                       │
+                 ▼                       ▼
+             Star Schema             Data Marts
+                 │                       │
+                 └───────────┬───────────┘
+                             ▼
+                          POWER BI
 ```
 
 ---
 
-# 32. MVP — The First Version
+# 47. Where Each Technology Fits
 
-Do not try to build the entire project immediately.
-
-The first working version should be:
-
-```text
-CSV/JSON
-   ↓
-Python
-   ↓
-MinIO
-   ↓
-Bronze
-   ↓
-Silver
-   ↓
-Gold
-   ↓
-PostgreSQL
-   ↓
-Power BI
-```
-
-Once that works, you have a complete end-to-end pipeline.
-
-Then expand it.
+| Technology | Purpose                            |
+| ---------- | ---------------------------------- |
+| Python     | Data generation and ingestion      |
+| MinIO      | Raw/object storage                 |
+| PostgreSQL | Relational database and warehouse  |
+| Bronze     | First persistent data layer        |
+| Silver     | Cleaned and validated data         |
+| Gold       | Business-ready analytical data     |
+| Kimball    | Dimensional warehouse methodology  |
+| Inmon      | Normalized EDW methodology         |
+| dbt        | SQL transformation and testing     |
+| Airflow    | Pipeline orchestration             |
+| Docker     | Environment/container management   |
+| Spark      | Large-scale distributed processing |
+| Power BI   | Business Intelligence              |
+| Git        | Version control                    |
 
 ---
 
-# 33. Version 2
+# 48. Recommended Implementation Sequence
 
-Add:
+The project should be developed progressively.
 
-```text
-Airflow
-+
-dbt
-+
-Data Quality
-+
-Incremental Processing
-```
+## Phase 1 — Business Requirements
+
+Define:
+
+* Business scenario
+* Business questions
+* KPIs
+* Entities
+* Relationships
 
 ---
 
-# 34. Version 3
+## Phase 2 — Source Data
 
-Add:
+Define:
+
+* Source systems
+* File/API formats
+* Schemas
+* Data types
+* Relationships
+* Expected data-quality problems
+
+---
+
+## Phase 3 — Data Generation
+
+Generate realistic data and intentionally introduce data-quality issues.
+
+---
+
+## Phase 4 — Ingestion
+
+Implement Python ingestion.
+
+Load source data into raw storage and the Bronze layer.
+
+---
+
+## Phase 5 — Bronze
+
+Create the Bronze schema and ingestion metadata.
+
+---
+
+## Phase 6 — Silver
+
+Implement cleaning, standardization, validation, deduplication, and quarantine handling.
+
+---
+
+## Phase 7 — Gold
+
+Create business-ready analytical datasets based on the defined business questions.
+
+---
+
+## Phase 8 — Kimball
+
+Design:
 
 ```text
-Kimball
+Fact tables
++
+Dimension tables
++
+Surrogate keys
++
+Date dimension
 +
 SCD Type 2
-+
-Inmon
-+
+```
+
+---
+
+## Phase 9 — Inmon
+
+Design:
+
+```text
+Normalized EDW
+       ↓
 Data Marts
 ```
 
 ---
 
-# 35. Version 4
+## Phase 10 — Architecture Comparison
 
-Add:
+Compare:
 
 ```text
-Spark
-+
-Performance Optimization
-+
-Docker
-+
-Testing
-+
-Monitoring
-+
-Data Lineage
+Medallion
+Kimball
+Inmon
 ```
+
+Explain their purposes, strengths, weaknesses, and appropriate use cases.
 
 ---
 
-# 36. Final Architecture
+## Phase 11 — dbt
 
-The final project should eventually resemble:
-
-```text
-                         DATA SOURCES
-                              │
-               ┌──────────────┼──────────────┐
-               │              │              │
-              CSV            JSON            API
-               │              │              │
-               └──────────────┼──────────────┘
-                              ▼
-                     ┌─────────────────┐
-                     │     AIRFLOW     │
-                     │  ORCHESTRATION  │
-                     └────────┬────────┘
-                              ▼
-                     ┌─────────────────┐
-                     │      MINIO      │
-                     │   DATA LAKE     │
-                     └────────┬────────┘
-                              ▼
-                         BRONZE LAYER
-                              │
-                              ▼
-                         SILVER LAYER
-                              │
-                 ┌────────────┼────────────┐
-                 │            │            │
-                 ▼            ▼            ▼
-             MEDALLION      KIMBALL      INMON
-                 │            │            │
-                 ▼            ▼            ▼
-               GOLD       STAR SCHEMA      EDW
-                              │            │
-                              │            ▼
-                              │        DATA MARTS
-                              │            │
-                              └─────┬──────┘
-                                    ▼
-                             DATA SERVING
-                                    │
-                                    ▼
-                                POWER BI
-                                    │
-                ┌───────────────────┼──────────────────┐
-                │                   │                  │
-             SALES              CUSTOMERS          PRODUCTS
-             REPORT              REPORT             REPORT
-                │
-                ▼
-         DATA QUALITY REPORT
-```
+Introduce structured SQL transformations, tests, documentation, and lineage.
 
 ---
 
-# 37. What You Will Learn
+## Phase 12 — Airflow
 
-By completing this project, you will gain practical experience with:
+Automate the complete workflow.
 
-### Data Engineering
+---
 
-* ETL / ELT
-* Batch processing
+## Phase 13 — Incremental Processing
+
+Implement processing of new/changed records without reprocessing the entire historical dataset.
+
+---
+
+## Phase 14 — Data Quality Framework
+
+Create automated validation and quality reporting.
+
+---
+
+## Phase 15 — Power BI
+
+Build the analytical dashboards.
+
+---
+
+## Phase 16 — Docker
+
+Containerize the required infrastructure.
+
+---
+
+## Phase 17 — Testing
+
+Perform:
+
+* Unit testing
+* Data testing
+* Integration testing
+* Pipeline testing
+
+---
+
+## Phase 18 — Performance
+
+Investigate:
+
+* Query optimization
+* Indexing
+* Parquet
+* Partitioning
 * Incremental processing
-* Data ingestion
-* Data transformation
-* Data validation
+
+---
+
+## Phase 19 — Final Documentation
+
+Document:
+
+* Architecture
+* Data sources
+* Data dictionary
 * Data quality
-* Data lineage
-
-### Data Architecture
-
-* Data Lakes
-* Lakehouse concepts
-* Medallion Architecture
-* Data Warehouses
+* Medallion
 * Kimball
 * Inmon
-* Data Marts
-* Star Schema
-* Normalized models
-
-### Databases
-
-* PostgreSQL
-* SQL
-* Fact tables
-* Dimension tables
-* Surrogate keys
-* Slowly Changing Dimensions
-* Indexing
-* Query optimization
-
-### Tools
-
-* Python
-* Docker
-* MinIO
+* Pipeline
 * Airflow
 * dbt
-* Spark
 * Power BI
-* Git
+* Testing
+* Performance
+* Setup instructions
 
 ---
 
-# 38. The Most Important Rule
+# 49. Minimum Viable Pipeline
 
-Do not think of this project as:
-
-> "I need to finish 20 technologies."
-
-Think of it as:
-
-> **"I am building a data platform and progressively solving engineering problems."**
-
-For every technology, ask:
+Before implementing every advanced feature, the core pipeline should work end-to-end:
 
 ```text
-What problem does this solve?
-Why do I need it?
-What happens without it?
-What are its alternatives?
-What are the trade-offs?
+Source
+  ↓
+Python
+  ↓
+MinIO
+  ↓
+Bronze
+  ↓
+Silver
+  ↓
+Gold
+  ↓
+Kimball Warehouse
+  ↓
+Power BI
 ```
 
-For example:
-
-### Why MinIO?
-
-Because we need object storage representing our Data Lake.
-
-### Why Airflow?
-
-Because manually executing pipelines doesn't scale.
-
-### Why dbt?
-
-Because SQL transformations need structure, testing, documentation, and lineage.
-
-### Why Kimball?
-
-Because analytical workloads benefit from dimensional modeling.
-
-### Why Inmon?
-
-Because enterprise integration can benefit from a centralized normalized warehouse.
-
-### Why Spark?
-
-Because eventually the data volume may exceed what is practical for single-machine processing.
-
-That reasoning is much more valuable in an interview than simply saying:
-
-> "I used Airflow, Spark, dbt, and Docker."
+Once this pipeline works, additional capabilities can be added without destroying the core architecture.
 
 ---
 
-# 39. Final Portfolio Result
+# 50. Final Project Outcome
 
-At the end, your GitHub repository should communicate:
+The completed project should demonstrate that a Data Engineer can take intentionally messy, heterogeneous e-commerce source data and build a reliable analytical platform from it.
 
-> **I built a complete end-to-end e-commerce Data Engineering platform from messy heterogeneous source systems to analytical dashboards. The platform implements Medallion, Kimball, and Inmon architectures, uses automated ingestion and orchestration, performs data-quality validation and incremental processing, and exposes analytical data through Power BI.**
-
-That is a **substantial Data Engineering portfolio project**.
-
----
-
-# 40. Our Starting Point
-
-We should now **not jump directly into Airflow or Spark**.
-
-The first thing to build is the foundation:
+The final system should demonstrate:
 
 ```text
-                    PROJECT FOUNDATION
-
-Business Requirements
-        ↓
-Business Entities
-        ↓
-Source Systems
-        ↓
-Source Data Schema
-        ↓
-Messy Data Design
-        ↓
-Data Generation
+                    MESSY DATA
+                        │
+                        ▼
+                   INGESTION
+                        │
+                        ▼
+                  RAW STORAGE
+                     MINIO
+                        │
+                        ▼
+                     BRONZE
+                        │
+                        ▼
+                     SILVER
+                        │
+                        ▼
+                      GOLD
+                        │
+              ┌─────────┴─────────┐
+              ▼                   ▼
+           KIMBALL              INMON
+              │                   │
+              ▼                   ▼
+        STAR SCHEMA            EDW
+              │                   │
+              │                DATA MARTS
+              │                   │
+              └─────────┬─────────┘
+                        ▼
+                    POWER BI
 ```
 
-### First task
+The project should therefore demonstrate not only the ability to build pipelines, but also the ability to understand **why each architectural component exists and what problem it solves**.
 
-We should design the **E-Commerce source system in detail**.
+The final portfolio statement should be:
 
-That means defining:
+> **I built an end-to-end E-commerce Data Engineering platform that ingests intentionally messy multi-source data, preserves raw data in object storage, progressively transforms it through a Medallion architecture, implements both Kimball dimensional modeling and an Inmon Enterprise Data Warehouse, automates the pipeline with orchestration and data-quality validation, and exposes the resulting analytical data through Power BI.**
 
-1. Customers
-2. Products
-3. Orders
-4. Order Items
-5. Payments
-6. Shipping
-7. Reviews
-8. Marketing
-9. Exchange Rates
+---
 
-For each one, we should define:
+# 51. Key Architectural Principles
 
-* Columns
-* Data types
-* Primary key
-* Foreign keys
-* Relationships
-* Example records
-* Expected data quality problems
-* Source format
-* How frequently the data arrives
+The following principles should guide the implementation:
 
-Once that is designed, **then we can start building the actual project from Phase 1 step by step**, rather than making architectural decisions while coding.
+### Principle 1 — Preserve Raw Data
+
+Raw source data should be preserved so that the pipeline can be reproduced and investigated.
+
+### Principle 2 — Separate Data Processing Stages
+
+Bronze, Silver, and Gold should have clearly defined responsibilities.
+
+### Principle 3 — Do Not Confuse Medallion With Data Warehouse Modeling
+
+Medallion describes **progressive data refinement**.
+
+Kimball and Inmon describe **warehouse modeling approaches**.
+
+### Principle 4 — Business Requirements Drive Gold and Warehouse Design
+
+The business questions should determine which metrics, facts, dimensions, and marts are required.
+
+### Principle 5 — Data Quality Is Part of the Pipeline
+
+Validation should occur as part of data processing rather than being treated as an afterthought.
+
+### Principle 6 — Automate After the Pipeline Works
+
+First build a reliable pipeline manually, then introduce orchestration.
+
+### Principle 7 — Every Technology Must Have a Purpose
+
+A technology should be included because it solves a specific engineering problem, not simply because it is popular.
+
+---
+
+# 52. Final Architecture Summary
+
+The project's architecture can be summarized in four major sections:
+
+### Data Lake / Medallion
+
+```text
+MinIO
+  ↓
+Bronze
+  ↓
+Silver
+  ↓
+Gold
+```
+
+### Kimball
+
+```text
+Gold / Refined Data
+       ↓
+Dimensional Warehouse
+       ↓
+Fact + Dimensions
+       ↓
+Power BI
+```
+
+### Inmon
+
+```text
+Refined Data
+     ↓
+Normalized EDW
+     ↓
+Data Marts
+     ↓
+Power BI
+```
+
+### Orchestration and Quality
+
+```text
+             Airflow
+                │
+                ▼
+      ┌───────────────────┐
+      │ Complete Pipeline │
+      └─────────┬─────────┘
+                │
+                ▼
+        Data Quality Tests
+                │
+                ▼
+         Logging / Monitoring
+```
+
+Together, these components form a complete Data Engineering platform rather than a collection of unrelated technologies.
+
+
+
+
+
+# Project Architecture — High-Level Overview
+
+The project is designed as an end-to-end E-commerce Data Engineering platform. It takes raw, heterogeneous source data and progressively transforms it into reliable, business-ready analytical data, which is then modeled for data warehousing and consumed through Business Intelligence tools.
+
+## Overall Architecture
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                         DATA SOURCES                                │
+│                                                                     │
+│   CSV Files        JSON Files        APIs        Other Sources      │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         INGESTION                                   │
+│                                                                     │
+│                         Python                                     │
+│                                                                     │
+│  • Extract data                                                    │
+│  • Generate ingestion metadata                                     │
+│  • Track batches                                                   │
+│  • Handle source-specific ingestion                                │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      RAW DATA STORAGE                               │
+│                                                                     │
+│                            MinIO                                    │
+│                                                                     │
+│  Preserves the original source data before transformation           │
+└──────────────────────────────┬──────────────────────────────────────┘
+                               │
+                               ▼
+╔═════════════════════════════════════════════════════════════════════╗
+║                     MEDALLION ARCHITECTURE                         ║
+╠═════════════════════════════════════════════════════════════════════╣
+║                                                                     ║
+║   ┌──────────────┐       ┌──────────────┐       ┌──────────────┐   ║
+║   │    BRONZE    │ ───▶  │    SILVER    │ ───▶  │     GOLD     │   ║
+║   │              │       │              │       │              │   ║
+║   │ Raw /        │       │ Cleaned /    │       │ Business-    │   ║
+║   │ minimally    │       │ validated /  │       │ ready /      │   ║
+║   │ transformed  │       │ standardized │       │ analytical   │   ║
+║   └──────────────┘       └──────────────┘       └───────┬──────┘   ║
+║                                                         │          ║
+╚═════════════════════════════════════════════════════════╪══════════╝
+                                                          │
+                              ┌───────────────────────────┴────────────┐
+                              │                                        │
+                              ▼                                        ▼
+                 ┌────────────────────────┐             ┌────────────────────────┐
+                 │        KIMBALL         │             │         INMON          │
+                 │   Dimensional Model    │             │    Enterprise DW      │
+                 │                        │             │                        │
+                 │   Fact Tables          │             │   Normalized EDW       │
+                 │   Dimensions           │             │          ↓             │
+                 │   Star Schema          │             │     Data Marts         │
+                 │   SCD Type 2           │             │                        │
+                 └────────────┬───────────┘             └────────────┬───────────┘
+                              │                                      │
+                              └──────────────────┬───────────────────┘
+                                                 │
+                                                 ▼
+                              ┌──────────────────────────────────────┐
+                              │          BUSINESS INTELLIGENCE       │
+                              │                                      │
+                              │              Power BI                 │
+                              │                                      │
+                              │  • Sales Dashboard                   │
+                              │  • Customer Analytics                │
+                              │  • Product Analytics                 │
+                              │  • Operations / Shipping             │
+                              │  • Data Quality / Pipeline KPIs      │
+                              └──────────────────────────────────────┘
+
+
+       ┌─────────────────────────────────────────────────────────┐
+       │                  SUPPORTING COMPONENTS                   │
+       │                                                         │
+       │  Airflow       → Pipeline orchestration                 │
+       │  dbt           → SQL transformations & testing          │
+       │  PostgreSQL    → Relational storage / warehouse         │
+       │  Docker        → Containerized environment              │
+       │  Git           → Version control                         │
+       │  Data Quality  → Validation, monitoring & quarantine     │
+       │  Spark         → Optional distributed processing         │
+       └─────────────────────────────────────────────────────────┘
+```
+
+## Architecture Flow
+
+The complete data journey can be summarized as:
+
+```text
+SOURCE
+  │
+  ▼
+PYTHON INGESTION
+  │
+  ▼
+MINIO
+Raw Data Storage
+  │
+  ▼
+BRONZE
+Raw / minimally transformed
+  │
+  ▼
+SILVER
+Cleaned / validated / standardized
+  │
+  ▼
+GOLD
+Business-ready analytical data
+  │
+  ├─────────────────────────┐
+  ▼                         ▼
+KIMBALL                    INMON
+Star Schema                Normalized EDW
+  │                         │
+  │                         ▼
+  │                      Data Marts
+  │                         │
+  └────────────┬────────────┘
+               ▼
+            POWER BI
+               │
+               ▼
+        Business Insights
+```
+
+## Role of Each Major Component
+
+| Component          | Main Responsibility                                                    |
+| ------------------ | ---------------------------------------------------------------------- |
+| **Source Systems** | Provide heterogeneous and potentially dirty data                       |
+| **Python**         | Extract and ingest source data                                         |
+| **MinIO**          | Preserve raw source data in object storage                             |
+| **Bronze**         | Store the first persistent representation of ingested data             |
+| **Silver**         | Clean, validate, standardize, and integrate data                       |
+| **Gold**           | Produce business-ready analytical datasets                             |
+| **Kimball**        | Model analytical data using facts, dimensions, and star schemas        |
+| **Inmon**          | Build a normalized Enterprise Data Warehouse and downstream data marts |
+| **PostgreSQL**     | Provide relational database and warehouse storage                      |
+| **dbt**            | Manage SQL transformations, tests, documentation, and lineage          |
+| **Airflow**        | Orchestrate and schedule the data pipeline                             |
+| **Data Quality**   | Detect, measure, quarantine, and report data-quality problems          |
+| **Docker**         | Provide a reproducible development environment                         |
+| **Spark**          | Provide optional distributed processing for large-scale workloads      |
+| **Power BI**       | Provide dashboards, reports, KPIs, and business analysis               |
+| **Git**            | Manage source code and project versioning                              |
+
+## Architectural Concepts
+
+It is important to distinguish the three major architectural concepts used in the project.
+
+### 1. Medallion Architecture
+
+The Medallion Architecture describes **how data becomes progressively refined**:
+
+```text
+Bronze → Silver → Gold
+```
+
+### 2. Kimball
+
+Kimball describes **how analytical warehouse data is modeled**:
+
+```text
+Fact Tables + Dimension Tables
+             ↓
+         Star Schema
+```
+
+### 3. Inmon
+
+Inmon describes **how an enterprise data warehouse can be organized around normalized enterprise data**:
+
+```text
+Normalized EDW
+      ↓
+ Data Marts
+```
+
+Therefore, these are not three competing layers of the same pipeline. They address different architectural concerns and can be demonstrated together within the same project.
+
+## Final Architecture Principle
+
+The project follows the principle:
+
+> **Store raw data first, progressively improve its quality through the Medallion layers, then model the refined data for analytical consumption using established warehouse methodologies, and finally expose the analytical results through Business Intelligence.**
