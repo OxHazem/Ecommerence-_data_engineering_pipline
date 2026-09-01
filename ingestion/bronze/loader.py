@@ -244,10 +244,53 @@ def load_all_objects_to_bronze():
     finally:
         postgres_connection.close()
 
+# ============================================================
+# Load specific MinIO object to Bronze
+# ============================================================
+
+def load_specific_object_to_bronze(object_name: str):
+    """
+    Load one specific Parquet object from MinIO into Bronze.
+    """
+
+    minio_client = create_minio_client()
+    postgres_connection = create_postgres_connection()
+
+    try:
+
+        print("========================================")
+        print("MINIO → BRONZE")
+        print("========================================")
+        print(f"Bucket: {MINIO_RAW_BUCKET}")
+        print(f"Object: {object_name}")
+        print()
+
+        rows_loaded = load_object_to_bronze(
+            client=minio_client,
+            connection=postgres_connection,
+            object_name=object_name,
+        )
+
+        print()
+        print("========================================")
+        print("BRONZE LOAD COMPLETED")
+        print("========================================")
+        print(f"Objects loaded: 1")
+        print(f"Rows loaded:    {rows_loaded}")
+
+    finally:
+        postgres_connection.close()
 
 # ============================================================
 # Main
 # ============================================================
 
 if __name__ == "__main__":
-    load_all_objects_to_bronze()
+    # load_all_objects_to_bronze()
+    object_name = (
+        "exchange_rates/"
+        "batch_id=b43d7395-b7cd-412a-87f2-19148f35fe80/"
+        "exchange_rates.parquet"
+    )
+
+    load_specific_object_to_bronze(object_name)
