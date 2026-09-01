@@ -5,6 +5,32 @@ LIMIT 20;
 
 
 
+SELECT
+    customer_id,
+    first_name,
+    last_name,
+    orders,
+    units_sold,
+
+    revenue,
+    cost,
+    profit,
+
+    revenue_sar,
+    cost_sar,
+    profit_sar,
+
+    revenue_aed,
+    cost_aed,
+    profit_aed,
+
+    incomplete_items
+
+FROM gold.customer_sales
+ORDER BY customer_id
+LIMIT 20;
+
+
 
 SELECT
     COUNT(*) AS customers,

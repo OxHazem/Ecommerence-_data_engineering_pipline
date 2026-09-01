@@ -183,3 +183,42 @@ WHERE rate IS NOT NULL AND TRIM(rate) <> '' AND UPPER(TRIM(rate)) NOT IN ('NULL'
 SELECT *
 FROM bronze.exchange_rate
 WHERE rate IS NOT NULL AND rate <> TRIM(rate);
+
+
+
+SELECT
+    requested_date,
+    date,
+    base,
+    quote,
+    rate
+FROM silver.exchange_rate
+ORDER BY date, base, quote
+LIMIT 30;
+
+
+
+SELECT
+    MIN(date) AS first_rate_date,
+    MAX(date) AS last_rate_date,
+    COUNT(DISTINCT date) AS number_of_dates
+FROM silver.exchange_rate;
+
+
+SELECT
+    base,
+    quote,
+    COUNT(*) AS rate_count,
+    MIN(date) AS first_date,
+    MAX(date) AS last_date
+FROM silver.exchange_rate
+GROUP BY base, quote
+ORDER BY base, quote;
+
+
+
+SELECT
+    MIN(order_date) AS min_order_date,
+    MAX(order_date) AS max_order_date,
+    COUNT(*) AS total_orders
+FROM silver.orders;

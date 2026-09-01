@@ -3,6 +3,35 @@ FROM gold.daily_sales
 ORDER BY date
 LIMIT 20;
 
+SELECT
+    date,
+    revenue,
+    cost,
+    profit,
+    revenue_sar,
+    cost_sar,
+    profit_sar,
+    revenue_aed,
+    cost_aed,
+    profit_aed
+FROM gold.daily_sales
+ORDER BY date
+LIMIT 20;
+
+
+SELECT
+    date,
+
+    profit AS profit_egp,
+    profit_sar,
+    profit_aed
+
+FROM gold.daily_sales
+WHERE profit IS NOT NULL
+ORDER BY date
+LIMIT 20;
+
+
 
 
 SELECT

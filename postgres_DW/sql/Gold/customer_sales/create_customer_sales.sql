@@ -1,14 +1,19 @@
+-- 
 -- ============================================================
 -- GOLD - CUSTOMER SALES
 -- ============================================================
 -- Grain:
 -- One row per customer.
 --
--- Purpose:
--- Aggregate customer information with sales performance.
+-- Financial values:
+--   revenue / cost / profit        → EGP
+--   revenue_sar / cost_sar / profit_sar → SAR
+--   revenue_aed / cost_aed / profit_aed → AED
 -- ============================================================
 
-CREATE TABLE IF NOT EXISTS gold.customer_sales (
+DROP TABLE IF EXISTS gold.customer_sales;
+
+CREATE TABLE gold.customer_sales (
 
     customer_id INTEGER PRIMARY KEY,
 
@@ -26,6 +31,10 @@ CREATE TABLE IF NOT EXISTS gold.customer_sales (
 
     units_sold BIGINT NOT NULL,
 
+    -- ========================================================
+    -- EGP
+    -- ========================================================
+
     revenue NUMERIC(18,2) NOT NULL,
 
     cost NUMERIC(18,2) NOT NULL,
@@ -34,6 +43,29 @@ CREATE TABLE IF NOT EXISTS gold.customer_sales (
 
     average_order_value NUMERIC(18,2) NOT NULL,
 
-    incomplete_items INTEGER NOT NULL
+    -- ========================================================
+    -- SAR
+    -- ========================================================
 
+    revenue_sar NUMERIC(18,2) NOT NULL,
+
+    cost_sar NUMERIC(18,2) NOT NULL,
+
+    profit_sar NUMERIC(18,2) NOT NULL,
+
+    -- ========================================================
+    -- AED
+    -- ========================================================
+
+    revenue_aed NUMERIC(18,2) NOT NULL,
+
+    cost_aed NUMERIC(18,2) NOT NULL,
+
+    profit_aed NUMERIC(18,2) NOT NULL,
+
+    -- ========================================================
+    -- DATA QUALITY
+    -- ========================================================
+
+    incomplete_items INTEGER NOT NULL
 );
