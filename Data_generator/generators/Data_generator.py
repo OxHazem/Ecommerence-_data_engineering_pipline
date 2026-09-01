@@ -100,74 +100,245 @@ class data_generator:
         random.seed(self.seed)
         faker.seed_instance(self.seed)
 
-        # Category -> Subcategory
-        categories = {
+        # ========================================================
+        # PRODUCT CATALOG
+        # Category -> Subcategory -> Valid Brands
+        # ========================================================
 
-            "Electronics": [
-                "Laptops",
-                "Smartphones",
+        product_catalog = {
+
+            "Electronics": {
+
+                "Laptops": ["Dell", "HP", "Lenovo", "Apple"],
+
+                "Smartphones": ["Samsung", "Apple", "Sony", "LG"],
+
+                "Headphones": ["Sony", "Samsung", "LG"],
+
+                "Tablets": ["Apple", "Samsung", "Lenovo"],
+
+                "Accessories": ["Samsung", "Apple", "Sony", "Philips"]
+            },
+
+            "Clothing": {
+
+                "Shirts": ["Nike", "Adidas", "Puma", "Zara"],
+
+                "Pants": ["Nike", "Adidas", "Puma", "Zara"],
+
+                "Shoes": ["Nike", "Adidas", "Puma", "Zara"],
+
+                "Jackets": ["Nike", "Adidas", "Puma", "Zara"],
+
+                "Dresses": ["Zara"]
+            },
+
+            "Home": {
+
+                "Furniture": ["LG", "Philips"],
+
+                "Kitchen": ["Philips", "LG"],
+
+                "Decor": ["Philips"],
+
+                "Lighting": ["Philips", "LG"],
+
+                "Bedding": ["Philips"]
+            },
+
+            "Sports": {
+
+                "Fitness": ["Nike", "Adidas", "Puma"],
+
+                "Running": ["Nike", "Adidas", "Puma"],
+
+                "Football": ["Nike", "Adidas", "Puma"],
+
+                "Basketball": ["Nike", "Adidas", "Puma"],
+
+                "Outdoor": ["Nike", "Adidas", "Puma"]
+            },
+
+            "Beauty": {
+
+                "Skincare": ["Philips"],
+
+                "Haircare": ["Philips"],
+
+                "Makeup": ["Zara"],
+
+                "Fragrance": ["Zara"],
+
+                "Bath": ["Philips"]
+            }
+        }
+
+        # ========================================================
+        # Product name templates
+        # Subcategory -> realistic product type
+        # ========================================================
+
+        product_name_templates = {
+
+            "Laptops": [
+                "Laptop",
+                "Gaming Laptop",
+                "Business Laptop",
+                "Ultrabook"
+            ],
+
+            "Smartphones": [
+                "Smartphone",
+                "5G Smartphone",
+                "Pro Smartphone",
+                "Plus Smartphone"
+            ],
+
+            "Headphones": [
                 "Headphones",
-                "Tablets",
-                "Accessories"
+                "Wireless Headphones",
+                "Noise Cancelling Headphones"
             ],
 
-            "Clothing": [
-                "Shirts",
-                "Pants",
-                "Shoes",
-                "Jackets",
-                "Dresses"
+            "Tablets": [
+                "Tablet",
+                "Pro Tablet",
+                "Android Tablet"
             ],
 
-            "Home": [
-                "Furniture",
-                "Kitchen",
-                "Decor",
-                "Lighting",
-                "Bedding"
+            "Accessories": [
+                "Wireless Mouse",
+                "Keyboard",
+                "USB Hub",
+                "Charger"
             ],
 
-            "Sports": [
-                "Fitness",
-                "Running",
+            "Shirts": [
+                "T-Shirt",
+                "Casual Shirt",
+                "Sport Shirt"
+            ],
+
+            "Pants": [
+                "Jeans",
+                "Casual Pants",
+                "Sport Pants"
+            ],
+
+            "Shoes": [
+                "Running Shoes",
+                "Training Shoes",
+                "Sport Shoes"
+            ],
+
+            "Jackets": [
+                "Jacket",
+                "Sport Jacket",
+                "Winter Jacket"
+            ],
+
+            "Dresses": [
+                "Casual Dress",
+                "Summer Dress",
+                "Evening Dress"
+            ],
+
+            "Furniture": [
+                "Chair",
+                "Table",
+                "Sofa",
+                "Cabinet"
+            ],
+
+            "Kitchen": [
+                "Blender",
+                "Cookware Set",
+                "Kitchen Appliance"
+            ],
+
+            "Decor": [
+                "Wall Decor",
+                "Decoration Set",
+                "Home Decor"
+            ],
+
+            "Lighting": [
+                "Desk Lamp",
+                "Ceiling Light",
+                "LED Lamp"
+            ],
+
+            "Bedding": [
+                "Bed Set",
+                "Pillow",
+                "Blanket"
+            ],
+
+            "Fitness": [
+                "Treadmill",
+                "Dumbbell Set",
+                "Exercise Equipment"
+            ],
+
+            "Running": [
+                "Running Shoes",
+                "Running Gear",
+                "Running Equipment"
+            ],
+
+            "Football": [
                 "Football",
-                "Basketball",
-                "Outdoor"
+                "Football Shoes",
+                "Football Gear"
             ],
 
-            "Beauty": [
-                "Skincare",
-                "Haircare",
-                "Makeup",
-                "Fragrance",
-                "Bath"
+            "Basketball": [
+                "Basketball",
+                "Basketball Shoes",
+                "Basketball Gear"
+            ],
+
+            "Outdoor": [
+                "Camping Gear",
+                "Outdoor Equipment",
+                "Hiking Gear"
+            ],
+
+            "Skincare": [
+                "Face Cream",
+                "Moisturizer",
+                "Cleanser",
+                "Skin Serum"
+            ],
+
+            "Haircare": [
+                "Shampoo",
+                "Hair Conditioner",
+                "Hair Serum"
+            ],
+
+            "Makeup": [
+                "Foundation",
+                "Lipstick",
+                "Mascara"
+            ],
+
+            "Fragrance": [
+                "Perfume",
+                "Eau de Parfum",
+                "Fragrance Set"
+            ],
+
+            "Bath": [
+                "Body Wash",
+                "Bath Set",
+                "Bath Soap"
             ]
         }
 
-        brands = [
-            "Samsung",
-            "Apple",
-            "Nike",
-            "Adidas",
-            "Sony",
-            "LG",
-            "Dell",
-            "HP",
-            "Lenovo",
-            "Philips",
-            "Puma",
-            "Zara"
-        ]
-
-        suppliers = [
-            "Global Supplies",
-            "Prime Distribution",
-            "Tech Source",
-            "Mega Wholesale",
-            "Direct Imports",
-            "Global Trade",
-            "Premium Suppliers"
-        ]
+        # ========================================================
+        # Product status
+        # ========================================================
 
         product_statuses = [
             "Active",
@@ -177,45 +348,108 @@ class data_generator:
 
         products = []
 
+        # ========================================================
+        # Generate products
+        # ========================================================
+
         for product_id in range(1, n + 1):
 
+            # ----------------------------------------------------
+            # Choose category
+            # ----------------------------------------------------
 
-            category = random.choice(list(categories.keys()))
+            category = random.choice(
+                list(product_catalog.keys())
+            )
 
-            
-            subcategory = random.choice(categories[category])
+            # ----------------------------------------------------
+            # Choose subcategory ONLY from that category
+            # ----------------------------------------------------
 
-           
-            cost = round(random.uniform(5, 1000), 2)
+            subcategory = random.choice(
+                list(product_catalog[category].keys())
+            )
 
-           
+            # ----------------------------------------------------
+            # Choose brand ONLY from valid brands for
+            # category + subcategory
+            # ----------------------------------------------------
+
+            brand = random.choice(
+                product_catalog[category][subcategory]
+            )
+
+            # ----------------------------------------------------
+            # Generate product name based on subcategory
+            # ----------------------------------------------------
+
+            product_type = random.choice(
+                product_name_templates[subcategory]
+            )
+
+            product_name = f"{brand} {product_type}"
+
+            # ----------------------------------------------------
+            # Cost and price
+            # ----------------------------------------------------
+
+            cost = round(
+                random.uniform(5, 1000),
+                2
+            )
+
             price = round(
                 cost * random.uniform(1.10, 2.50),
                 2
             )
 
-           
-            stock_quantity = random.randint(0, 500)
+            # ----------------------------------------------------
+            # Stock
+            # ----------------------------------------------------
 
-            
+            stock_quantity = random.randint(
+                0,
+                500
+            )
+
+            # ----------------------------------------------------
+            # Launch date
+            # ----------------------------------------------------
+
             launch_date = faker.date_between(
                 start_date="-5y",
                 end_date="today"
             )
 
+            # ----------------------------------------------------
+            # Product status
+            # ----------------------------------------------------
+
+            product_status = random.choice(
+                product_statuses
+            )
+
             product = {
+
                 "product_id": product_id,
 
-                "product_name": f"{faker.word().capitalize()} "
-                                f"{faker.word().capitalize()}",
+                "product_name": product_name,
 
                 "category": category,
 
                 "subcategory": subcategory,
 
-                "brand": random.choice(brands),
+                "brand": brand,
 
-                "supplier": random.choice(suppliers),
+                "supplier": random.choice([
+                    "Global Supplies",
+                    "Prime Distribution",
+                    "Tech Source",
+                    "Mega Wholesale",
+                    "Direct Imports",
+                    "Global Trade",
+                    "Premium Suppliers"
+                ]),
 
                 "cost": cost,
 
@@ -223,7 +457,7 @@ class data_generator:
 
                 "stock_quantity": stock_quantity,
 
-                "product_status": random.choice(product_statuses),
+                "product_status": product_status,
 
                 "launch_date": launch_date
             }
@@ -492,33 +726,59 @@ class data_generator:
 
         shippings = []
 
+        # ========================================================
         # One shipping record per order
+        # ========================================================
+
         if n > len(orders):
             raise ValueError(
                 "Number of shipments cannot exceed number of orders."
             )
 
-        # Select unique orders
         selected_orders = random.sample(orders, n)
 
         for shipment_id, order in enumerate(selected_orders, start=1):
 
-            order_id = order["order_id"]
+            order_date = order["order_date"]
 
-            # Shipping date must be on or after order date
-            shipping_date = faker.date_between(
-                start_date=order["order_date"],
-                end_date="today"
+            # ====================================================
+            # SHIPPING DATE
+            #
+            # Shipment should occur shortly after the order.
+            # Maximum 3 days after order.
+            # ====================================================
+
+            shipping_delay = random.randint(0, 3)
+
+            shipping_date = (
+                order_date +
+                timedelta(days=shipping_delay)
             )
 
-            # Estimated delivery is after shipping date
-            estimated_delivery_date = faker.date_between(
-                start_date=shipping_date,
-                end_date="+14d"
+            # ====================================================
+            # ESTIMATED DELIVERY
+            #
+            # Estimated delivery is 1–14 days after shipping.
+            # ====================================================
+
+            delivery_window = random.randint(1, 14)
+
+            estimated_delivery_date = (
+                shipping_date +
+                timedelta(days=delivery_window)
             )
 
-            # Decide whether the order has been delivered
-            shipping_status = random.choice(shipping_statuses)
+            # ====================================================
+            # SHIPPING STATUS
+            # ====================================================
+
+            shipping_status = random.choice(
+                shipping_statuses
+            )
+
+            # ====================================================
+            # ACTUAL DELIVERY
+            # ====================================================
 
             if shipping_status == "Delivered":
 
@@ -531,20 +791,31 @@ class data_generator:
 
                 delivery_date = None
 
+            # ====================================================
+            # SHIPPING RECORD
+            # ====================================================
+
             shipping = {
+
                 "shipment_id": shipment_id,
 
-                "order_id": order_id,
+                "order_id": order["order_id"],
 
                 "shipping_date": shipping_date,
 
-                "estimated_delivery_date": estimated_delivery_date,
+                "estimated_delivery_date": (
+                    estimated_delivery_date
+                ),
 
                 "delivery_date": delivery_date,
 
-                "shipping_country": order["shipping_country"],
+                "shipping_country": (
+                    order["shipping_country"]
+                ),
 
-                "shipping_city": order["shipping_city"],
+                "shipping_city": (
+                    order["shipping_city"]
+                ),
 
                 "shipping_method": random.choice(
                     shipping_methods
