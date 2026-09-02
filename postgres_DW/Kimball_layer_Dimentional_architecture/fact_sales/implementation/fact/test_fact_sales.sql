@@ -164,3 +164,30 @@ SELECT
 FROM kimball.fact_sales
 WHERE ROUND(revenue - cost, 2) <> ROUND(profit, 2)
 LIMIT 20;
+
+
+
+
+
+
+SELECT
+    order_id,
+    product_key,
+    COUNT(*) AS row_count
+FROM kimball.fact_sales
+GROUP BY order_id, product_key
+HAVING COUNT(*) > 1
+ORDER BY row_count DESC
+LIMIT 20;
+
+
+
+
+
+SELECT
+    customer_id,
+    COUNT(*) AS current_versions
+FROM kimball.dim_customer
+WHERE is_current = TRUE
+GROUP BY customer_id
+HAVING COUNT(*) > 1;

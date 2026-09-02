@@ -38,3 +38,6 @@ CREATE TABLE kimball.fact_sales (
         FOREIGN KEY (payment_key)
         REFERENCES kimball.dim_payment(payment_key)
 );
+
+
+

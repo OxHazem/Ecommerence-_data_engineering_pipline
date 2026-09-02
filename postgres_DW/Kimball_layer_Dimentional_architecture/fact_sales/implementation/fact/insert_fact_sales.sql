@@ -11,9 +11,7 @@ INSERT INTO kimball.fact_sales (
     cost,
     profit
 )
-
 WITH item_financials AS (
-
     SELECT
         oi.order_id,
         oi.product_id,
@@ -29,7 +27,6 @@ WITH item_financials AS (
         dc.customer_key,
         dp.product_key,
         dd.date_key,
-
         dpay.payment_key,
 
         CASE
@@ -75,18 +72,15 @@ WITH item_financials AS (
           AND er.date <= o.order_date
         ORDER BY er.date DESC
         LIMIT 1
-    ) er
-        ON TRUE
+    ) er ON TRUE
 
     WHERE o.order_status <> 'Cancelled'
       AND o.order_date IS NOT NULL
 ),
 
 calculated AS (
-
     SELECT
         *,
-        
         CASE
             WHEN is_financially_complete
              AND egp_rate IS NOT NULL
@@ -124,10 +118,7 @@ SELECT
     quantity,
     unit_price,
     discount,
-
     revenue_egp AS revenue,
     cost_egp AS cost,
-
     revenue_egp - cost_egp AS profit
-
 FROM calculated;
