@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS inmon_layer.country (
+    country_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    country_name VARCHAR(100) NOT NULL UNIQUE
+);
