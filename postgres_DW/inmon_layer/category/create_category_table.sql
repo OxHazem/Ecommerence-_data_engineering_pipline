@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS inmon_layer.category (
+    category_id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    category_name VARCHAR(100) NOT NULL UNIQUE
+);
