@@ -47,3 +47,34 @@ FROM inmon_layer.product p
 LEFT JOIN inmon_layer.subcategory sc
     ON p.subcategory_id = sc.subcategory_id
 WHERE sc.subcategory_id IS NULL;
+
+
+
+
+SELECT
+    column_name,
+    data_type,
+    is_nullable
+FROM information_schema.columns
+WHERE table_schema = 'inmon_layer'
+  AND table_name = 'product'
+ORDER BY ordinal_position;
+
+
+SELECT COUNT(*) AS invalid_subcategories
+FROM inmon_layer.subcategory sc
+LEFT JOIN inmon_layer.category c
+    ON sc.category_id = c.category_id
+WHERE c.category_id IS NULL;
+
+
+
+SELECT
+    subcategory_id,
+    subcategory_name,
+    COUNT(DISTINCT category_id) AS category_count
+FROM inmon_layer.subcategory
+GROUP BY
+    subcategory_id,
+    subcategory_name
+HAVING COUNT(DISTINCT category_id) > 1;
